@@ -23,6 +23,7 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           skip-git-pull: true
+          skip-on-empty: false
           version-file: "version.yml"
 
       - name: Comment on the Pull Request
