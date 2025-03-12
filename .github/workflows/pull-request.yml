@@ -15,14 +15,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Conventional Changelog Action
         id: changelog
         uses: TriPSs/conventional-changelog-action@v5
         with:
           github-token: ${{ secrets.github_token }}
+          skip-git-pull: true
 
       - name: Comment on the Pull Request
         uses: hasura/comment-progress@v2.3.0
