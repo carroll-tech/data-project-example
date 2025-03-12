@@ -26,8 +26,6 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           skip-git-pull: true
-          skip-commit: true
-          skip-tag: true
           git-push: false
           version-file: "version.yml"
       
@@ -35,9 +33,6 @@ jobs:
         run: |
           git config user.name "Conventional Changelog Action"
           git config user.email "conventional.changelog.action@github.com"
-          git add .
-          git commit -m "chore(release): ${{steps.changelog.outputs.version}} [skip ci]"
-          git tag -a ${{steps.changelog.outputs.version}} -m ${{steps.changelog.outputs.version}}
           git push
 
       - name: Comment on the Pull Request
