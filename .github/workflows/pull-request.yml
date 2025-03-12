@@ -28,6 +28,7 @@ jobs:
           skip-git-pull: true
           skip-commit: true
           skip-tag: true
+          git-push: false
           version-file: "version.yml"
       
       - name: Tag and Push Changelog
