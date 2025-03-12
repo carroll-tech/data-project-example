@@ -29,7 +29,6 @@ jobs:
           git-push: false
           skip-commit: true
           skip-tag: true
-          skip-bump: true
           output-file: "false"
           version-file: "version.yml"
 
