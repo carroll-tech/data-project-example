@@ -27,9 +27,11 @@ jobs:
           github-token: ${{ secrets.github_token }}
           skip-git-pull: true
           git-push: false
+          skip-commit: true
           skip-tag: true
           skip-bump: true
           output-file: "false"
+          version-file: "version.yml"
 
       - name: Comment on the Pull Request
         uses: hasura/comment-progress@v2.3.0
