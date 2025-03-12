@@ -26,8 +26,18 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           skip-git-pull: true
-          skip-on-empty: false
+          skip-commit: true
+          skip-tag: true
           version-file: "version.yml"
+      
+      - name: Tag and Push Changelog
+        run: |
+          git config user.name "Conventional Changelog Action"
+          git config user.email "conventional.changelog.action@github.com"
+          git add .
+          git commit -m "chore(release): ${{steps.changelog.outputs.version}} [skip ci]"
+          git tag -a ${{steps.changelog.outputs.version}} -m ${{steps.changelog.outputs.version}}
+          git push
 
       - name: Comment on the Pull Request
         uses: hasura/comment-progress@v2.3.0
