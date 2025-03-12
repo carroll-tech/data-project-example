@@ -1,4 +1,4 @@
-# 0.1.0 (2025-03-12)
+# 0.2.0 (2025-03-12)
 
 
 ### Bug Fixes
@@ -6,6 +6,7 @@
 * **ci:** added full fetch ([a017189](https://github.com/jolfr/data-project-example/commit/a017189fe52502ea33af1aa948b37d684c9ec9a6))
 * **ci:** added head ref and full fetch ([ecad57b](https://github.com/jolfr/data-project-example/commit/ecad57b4571b8e0411c54a6461eb1cdd9e36ccc8))
 * **ci:** added manual tag and push changelog ([66b33f9](https://github.com/jolfr/data-project-example/commit/66b33f932240d4d55302a022ecf8558e4d29f768))
+* **ci:** adding skip pull and push for release ([8f5389d](https://github.com/jolfr/data-project-example/commit/8f5389d867a7fad392fd6e5c964e3b6d6e3fe996))
 * **ci:** allowing commit and tag but no push ([7ef58aa](https://github.com/jolfr/data-project-example/commit/7ef58aa6b904a6843a7ade839902d78ba00f88e3))
 * **ci:** disabling push on changelog action ([80cae5f](https://github.com/jolfr/data-project-example/commit/80cae5f9ef7e7378a79993a74dd880ffe329a6ac))
 * **ci:** updated workflow permissions to allow pr comment ([98cdabd](https://github.com/jolfr/data-project-example/commit/98cdabd1e096108247711a6dbaf8b882d0e48d0d))
