@@ -31,5 +31,5 @@ jobs:
           repository: "jolfr/data-project-example"
           number: ${{ github.event.number }}
           id: version-comment
-          message: {{ steps.changelog.outputs.changelog }}
+          message: ${{ steps.changelog.outputs.changelog }}
           recreate: true
