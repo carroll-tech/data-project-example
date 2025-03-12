@@ -1,3 +1,7 @@
+locals {
+  cluster_name = "${var.project}-cluster"
+}
+
 variable "project" {
   description = "GCP project to deploy resources within"
   type = string
