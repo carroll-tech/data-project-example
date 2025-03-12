@@ -14,11 +14,15 @@ jobs:
     name: Version PR
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Conventional Changelog Action
         id: changelog
         uses: TriPSs/conventional-changelog-action@v6
         with:
           github-token: ${{ secrets.github_token }}
+          skip-git-pull: true
           skip-on-empty: false
           version-file: "version.yml"
 
