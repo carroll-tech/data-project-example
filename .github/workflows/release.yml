@@ -20,9 +20,15 @@ jobs:
         uses: TriPSs/conventional-changelog-action@v6
         with:
           github-token: ${{ secrets.github_token }}
-          output-file: false
           skip-git-pull: true
           git-push: false
+          version-file: "version.yml"
+
+      - name: Push Changelog
+        run: |
+          git config user.name "Conventional Changelog Action"
+          git config user.email "conventional.changelog.action@github.com"
+          git push
 
       - name: Create Release
         uses: actions/create-release@v1

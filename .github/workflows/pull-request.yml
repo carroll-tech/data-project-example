@@ -27,13 +27,9 @@ jobs:
           github-token: ${{ secrets.github_token }}
           skip-git-pull: true
           git-push: false
-          version-file: "version.yml"
-      
-      - name: Tag and Push Changelog
-        run: |
-          git config user.name "Conventional Changelog Action"
-          git config user.email "conventional.changelog.action@github.com"
-          git push
+          skip-tag: true
+          skip-bump: true
+          output-file: "false"
 
       - name: Comment on the Pull Request
         uses: hasura/comment-progress@v2.3.0
