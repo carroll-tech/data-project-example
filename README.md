@@ -15,7 +15,7 @@ A sophisticated chatbot platform designed to provide real-time insights and answ
 
 ## Technical Architecture
 
-The system is built on a modern data lakehouse architecture with three main components:
+The system is built on a modern data lakehouse architecture with five main components:
 
 1. **Data Ingestion & Processing Layer**: Collects blockchain data through The Graph and social media content via Twitter API, processed using Apache Spark and Apache Airflow for batch and Kafka and Spark Streaming for streaming workloads. Performs data validation through Great Expectations. 
    

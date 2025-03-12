@@ -24,6 +24,7 @@
 - PyTorch
 - Scikit-learn
 - Kubeflow
+- KServe
 - KubeAI
 - RAG (pgvector)
 - LangChain
