@@ -1,4 +1,4 @@
-# [0.2.0](https://github.com/jolfr/data-project-example/compare/v0.1.0...v0.2.0) (2025-03-13)
+## [0.2.1](https://github.com/jolfr/data-project-example/compare/v0.2.0...v0.2.1) (2025-03-13)
 
 
 ### Bug Fixes
@@ -8,16 +8,21 @@
 * **ci:** added head ref and full fetch ([ecad57b](https://github.com/jolfr/data-project-example/commit/ecad57b4571b8e0411c54a6461eb1cdd9e36ccc8))
 * **ci:** added manual tag and push changelog ([66b33f9](https://github.com/jolfr/data-project-example/commit/66b33f932240d4d55302a022ecf8558e4d29f768))
 * **ci:** adding conditional call to apply for terraform workflow ([ff00d05](https://github.com/jolfr/data-project-example/commit/ff00d05c665e27686c34fb53ae79c22ebba57f8b))
+* **ci:** adding manual workflow dispatch trigger ([66dfe95](https://github.com/jolfr/data-project-example/commit/66dfe9542ba6de34f3fbc42852cb094b1d333145))
+* **ci:** adding permissions for write to repo ([59527be](https://github.com/jolfr/data-project-example/commit/59527becdcfc681dce0d35122bc5c97ed627d701))
 * **ci:** adding skip commit to pr workflow ([c5d8c13](https://github.com/jolfr/data-project-example/commit/c5d8c13df23d772cf46e769846360543123536ce))
 * **ci:** adding skip pull and push for release ([8f5389d](https://github.com/jolfr/data-project-example/commit/8f5389d867a7fad392fd6e5c964e3b6d6e3fe996))
+* **ci:** adding trigger on ci changes ([05b3c55](https://github.com/jolfr/data-project-example/commit/05b3c55a787ff382afc961904a558a6f103677e3))
 * **ci:** allowing commit and tag but no push ([7ef58aa](https://github.com/jolfr/data-project-example/commit/7ef58aa6b904a6843a7ade839902d78ba00f88e3))
 * **ci:** disabling push on changelog action ([80cae5f](https://github.com/jolfr/data-project-example/commit/80cae5f9ef7e7378a79993a74dd880ffe329a6ac))
 * **ci:** fixing conditional run bug for terraform plan ([0cf2b90](https://github.com/jolfr/data-project-example/commit/0cf2b90a72f7fef0e6bd2f2060fc7adf415cdc07))
 * **ci:** fixing plan output ([d9c26e0](https://github.com/jolfr/data-project-example/commit/d9c26e090496c45d7b8bf5d4b737ea3b41a678ee))
 * **ci:** giving release workflow write permissions for versioning ([70ba3e4](https://github.com/jolfr/data-project-example/commit/70ba3e4b4801819cb93d2dd50493820af0b39f27))
+* **ci:** granting permissions to main workflow ([b4c956e](https://github.com/jolfr/data-project-example/commit/b4c956ed76005e83579f3b371e41034baf1e6fde))
 * **ci:** removing skip bump ([53778fc](https://github.com/jolfr/data-project-example/commit/53778fcf89b9dcd870761eff08ddd202689bb542))
 * **ci:** switching to use release for all write actions regarding versioning ([8c24a84](https://github.com/jolfr/data-project-example/commit/8c24a845d3de23cde4a57b10db58290cf640672c))
 * **ci:** updated workflow permissions to allow pr comment ([98cdabd](https://github.com/jolfr/data-project-example/commit/98cdabd1e096108247711a6dbaf8b882d0e48d0d))
+* **ci:** updating filter paths for workflows ([820f38c](https://github.com/jolfr/data-project-example/commit/820f38cf40e12532a939fe203b9807a1946877e2))
 * **ci:** updating pull request comment for terraform plan ([6585ef8](https://github.com/jolfr/data-project-example/commit/6585ef873f155c8429a304ca3dd966eb9c96bd42))
 * **infra:** added outputs to allow subsequent modules to lookup the cluster ([da38dc1](https://github.com/jolfr/data-project-example/commit/da38dc1179cb8ebbba2cf2fe77c3931fad19abbe))
 * **infra:** changed default region to us-central1 ([b6a0f83](https://github.com/jolfr/data-project-example/commit/b6a0f8338ddad55aac8a4df5f8c9d3b0e2724395))
