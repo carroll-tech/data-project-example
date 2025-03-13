@@ -73,8 +73,8 @@ jobs:
 
             <details><summary>Show Plan</summary>
 
-            \`\`\`\n
-            terraform\n${{ steps.plan.outputs.stdout }}
+            \`\`\`
+            ${{ steps.plan.outputs.stdout }}
             \`\`\`
 
             </details>
