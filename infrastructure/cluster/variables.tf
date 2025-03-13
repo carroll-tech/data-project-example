@@ -13,7 +13,7 @@ variable "project" {
 variable "region" {
   description = "GCP region to deploy resources within"
   type = string
-  default = "us-east4"
+  default = "us-central1"
 }
 
 variable "general_pool_min_nodes" {
