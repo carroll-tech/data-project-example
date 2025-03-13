@@ -30,10 +30,12 @@ jobs:
               - '${{ inputs.working_directory }}/**/*.tf'
               - '${{ inputs.working_directory }}/**/*.tfvars'
               - '${{ inputs.working_directory }}/.terraform.lock.hcl'
+            ci:
+              - '/.github/workflows/terraform*'
         
       - name: Set changes detected output
         id: set-output
-        run: echo "changes_detected=${{ steps.filter.outputs.terraform == 'true' }}" >> $GITHUB_OUTPUT
+        run: echo "changes_detected=${{ steps.filter.outputs.terraform == 'true' || steps.filter.outputs.ci == 'true' }}" >> $GITHUB_OUTPUT
 
   call-terraform-plan:
     name: Call Terraform Plan
