@@ -31,7 +31,7 @@ jobs:
               - '${{ inputs.working_directory }}/**/*.tfvars'
               - '${{ inputs.working_directory }}/.terraform.lock.hcl'
             ci:
-              - '/.github/workflows/terraform*'
+              - './.github/workflows/terraform*'
         
       - name: Set changes detected output
         id: set-output
