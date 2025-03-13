@@ -1,6 +1,12 @@
 name: Terraform Apply
 
 on:
+  workflow_dispatch:
+    inputs:
+      working_directory:
+        description: 'Directory containing Terraform configuration'
+        required: true
+        type: string
   workflow_call:
     inputs:
       working_directory:
