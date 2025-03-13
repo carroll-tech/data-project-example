@@ -24,9 +24,9 @@ resource "google_container_cluster" "main" {
 }
 
 resource "google_container_node_pool" "general_nodes" {
-  name       = local.general_pool_name
-  location   = var.region
-  cluster    = google_container_cluster.main.id
+  name     = local.general_pool_name
+  location = var.region
+  cluster  = google_container_cluster.main.id
 
   initial_node_count = 1
 
@@ -40,10 +40,10 @@ resource "google_container_node_pool" "general_nodes" {
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = google_service_account.nodes.email
-    oauth_scopes    = [
+    oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 
-  depends_on = [ google_service_account_iam_member.grant_sa_user ]
+  depends_on = [google_service_account_iam_member.grant_sa_user]
 }
