@@ -34,8 +34,9 @@
 ## Infrastructure
 - Google Cloud Platform (GCP)
 - Kubernetes
-- Terraform
 - Docker
+- Terraform
+- Terraform Cloud (HCP Terraform)
 
 ## DevOps & CI/CD
 - GitHub Actions
