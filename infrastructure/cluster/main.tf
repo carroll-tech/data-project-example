@@ -3,6 +3,12 @@ resource "google_service_account" "nodes" {
   display_name = var.pool_service_account_name
 }
 
+resource "google_service_account_iam_member" "grant_sa_user" {
+  service_account_id = google_service_account.nodes.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${data.google_client_openid_userinfo.me.email}"
+}
+
 resource "google_container_cluster" "main" {
   name     = local.cluster_name
   location = var.region
@@ -38,4 +44,6 @@ resource "google_container_node_pool" "general_nodes" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
+
+  depends_on = [ google_service_account_iam_member.grant_sa_user ]
 }
