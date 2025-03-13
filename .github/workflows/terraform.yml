@@ -40,8 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - env:
-            OUTPUT: ${{needs.detect-changes.outputs.changes_detected}}
-      - run: |
+          OUTPUT: ${{needs.detect-changes.outputs.changes_detected}}
+        run: |
           echo $OUTPUT
 
   call-terraform-plan:
