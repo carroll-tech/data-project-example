@@ -1,4 +1,4 @@
 provider "google" {
-  project = data.tfe_outputs.cluster.values.project
-  region  = data.tfe_outputs.cluster.values.region
+  project = data.tfe_outputs.cluster.nonsensitive_values.project
+  region  = data.tfe_outputs.cluster.nonsensitive_values.region
 }
