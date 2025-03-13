@@ -1,0 +1,45 @@
+name: Terraform Module Management
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: 'Directory containing Terraform configuration'
+        required: true
+        type: string
+
+jobs:
+  detect-changes:
+    name: Detect Terraform Changes
+    runs-on: ubuntu-latest
+    outputs:
+      changes_detected: ${{ steps.filter.outputs.changes_detected }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Filter paths
+        uses: dorny/paths-filter@v3.0.2
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - '${{ inputs.working_directory }}/**/*.tf'
+              - '${{ inputs.working_directory }}/**/*.tfvars'
+              - '${{ inputs.working_directory }}/.terraform.lock.hcl'
+        
+      - name: Set changes detected output
+        id: set-output
+        run: echo "changes_detected=${{ steps.filter.outputs.terraform == 'true' }}" >> $GITHUB_OUTPUT
+
+  call-terraform-plan:
+    name: Call Terraform Plan
+    needs: detect-changes
+    if: needs.detect-changes.outputs.changes_detected == 'true'
+    uses: ./.github/workflows/terraform-plan.yml
+    with:
+      working_directory: ${{ inputs.working_directory }}
+    secrets: inherit
