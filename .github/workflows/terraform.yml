@@ -37,6 +37,7 @@ jobs:
 
   debug:
     needs: detect-changes
+    runs-on: ubuntu-latest
     steps:
       - run: |
           echo ${{needs.detect-changes.outputs.changes_detected}}
