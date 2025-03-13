@@ -41,3 +41,10 @@ jobs:
           id: version-comment
           message: ${{ steps.changelog.outputs.changelog }}
           recreate: true
+          
+  terraform-plan:
+    name: Terraform Plan
+    uses: ./.github/workflows/terraform.yml
+    with:
+      working_directory: infrastructure/cluster
+    secrets: inherit
