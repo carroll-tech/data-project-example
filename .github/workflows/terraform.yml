@@ -13,7 +13,7 @@ jobs:
     name: Detect Terraform Changes
     runs-on: ubuntu-latest
     outputs:
-      changes_detected: ${{ steps.filter.outputs.changes_detected }}
+      changes_detected: ${{ steps.set-output.outputs.changes_detected }}
     
     steps:
       - name: Checkout code
@@ -34,8 +34,6 @@ jobs:
       - name: Set changes detected output
         id: set-output
         run: echo "changes_detected=${{ steps.filter.outputs.terraform == 'true' }}" >> $GITHUB_OUTPUT
-      
-      - run: echo $GITHUB_OUTPUT
 
   debug:
     needs: detect-changes
