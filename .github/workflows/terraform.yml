@@ -39,8 +39,10 @@ jobs:
     needs: detect-changes
     runs-on: ubuntu-latest
     steps:
+      - env:
+            OUTPUT: ${{needs.detect-changes.outputs.changes_detected}}
       - run: |
-          echo ${{needs.detect-changes.outputs.changes_detected}}
+          echo $OUTPUT
 
   call-terraform-plan:
     name: Call Terraform Plan
