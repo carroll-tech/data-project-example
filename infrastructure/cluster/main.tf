@@ -3,6 +3,12 @@ resource "google_service_account" "nodes" {
   display_name = var.pool_service_account_name
 }
 
+resource "google_project_iam_member" "nodes_role" {
+  project = var.project
+  role    = "roles/container.defaultNodeServiceAccount"
+  member  = "serviceAccount:${google_service_account.nodes.email}"
+}
+
 resource "google_service_account_iam_member" "grant_sa_user" {
   service_account_id = google_service_account.nodes.name
   role               = "roles/iam.serviceAccountUser"
