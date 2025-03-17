@@ -3,6 +3,11 @@ resource "google_service_account" "nodes" {
   display_name = var.pool_service_account_name
 }
 
+resource "google_service_account_iam_policy" "default_node" {
+  service_account_id = google_service_account.nodes.name
+  policy_data        = data.google_iam_policy.default_node.policy_data
+}
+
 resource "google_service_account_iam_member" "grant_sa_user" {
   service_account_id = google_service_account.nodes.name
   role               = "roles/iam.serviceAccountUser"
