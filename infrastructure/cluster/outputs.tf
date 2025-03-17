@@ -3,6 +3,11 @@ output "project" {
   value       = var.project
 }
 
+output "region" {
+  description = "The region where the resources are deployed"
+  value       = var.region
+}
+
 output "cluster_name" {
   description = "The name of the GKE cluster"
   value       = google_container_cluster.main.name
