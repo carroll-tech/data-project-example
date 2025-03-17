@@ -1,4 +1,4 @@
-## [0.2.2](https://github.com/jolfr/data-project-example/compare/v0.2.1...v0.2.2) (2025-03-17)
+## [0.2.3](https://github.com/jolfr/data-project-example/compare/v0.2.2...v0.2.3) (2025-03-17)
 
 
 ### Bug Fixes
@@ -27,6 +27,7 @@
 * **infra:** added outputs to allow subsequent modules to lookup the cluster ([da38dc1](https://github.com/jolfr/data-project-example/commit/da38dc1179cb8ebbba2cf2fe77c3931fad19abbe))
 * **infra:** adding default node roles to service account ([578e15b](https://github.com/jolfr/data-project-example/commit/578e15b85ebaf3233307c7f11ec77c58ba8e9e2d))
 * **infra:** changed default region to us-central1 ([b6a0f83](https://github.com/jolfr/data-project-example/commit/b6a0f8338ddad55aac8a4df5f8c9d3b0e2724395))
+* **infra:** fixing runtime issues with terraform apply ([68c2c8d](https://github.com/jolfr/data-project-example/commit/68c2c8da6919bfc335ff56a4f42229558bc301cc))
 * **infra:** updating permissions to allow service account to deploy node pool ([c4f51eb](https://github.com/jolfr/data-project-example/commit/c4f51ebaf9f4165ce7746bad72c6639926aadcea))
 * **workflow:** correct expression syntax in pull request workflow ([f0158c2](https://github.com/jolfr/data-project-example/commit/f0158c238f9129ff7aab2f73a5c6452645d2c93e))
 * **workflows:** disabled skip on empty ([060e7bd](https://github.com/jolfr/data-project-example/commit/060e7bdf5cae5c359f4960fd3fce980e4918b8fa))
