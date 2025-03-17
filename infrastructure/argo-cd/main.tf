@@ -11,7 +11,8 @@ resource "helm_release" "main" {
 
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
-  verify     = true
+
+  values = [ for values in fileset(path.module, "values/*.yaml"): "${file(values)}"]
 
   cleanup_on_fail = true
   recreate_pods   = true
