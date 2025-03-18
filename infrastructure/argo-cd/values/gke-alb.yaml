@@ -1,5 +1,5 @@
 global:
-  domain: argocd.example.com
+  domain: cd.data-project-example.net
 
 configs:
   params:
