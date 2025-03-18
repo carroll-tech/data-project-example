@@ -44,7 +44,10 @@ jobs:
           
   terraform-plan:
     name: Terraform Plan
+    strategy:
+      matrix:
+        module: [cluster, networking]
     uses: ./.github/workflows/terraform.yml
     with:
-      working_directory: infrastructure/cluster
+      working_directory: infrastructure/${{ matrix.module }}
     secrets: inherit
