@@ -1,12 +1,8 @@
 locals {
-  cd_domain = data.tfe_outputs.networking.values.static_ip_details["cd"].fqdn
+  cd_domain = data.google_compute_address.global_static_ip.address
   
   # Define Helm set values here
   helm_set_values = [
-    {
-      name  = "server.service.type"
-      value = "ClusterIP"
-    },
     {
       name  = "server.ingress.enabled"
       value = "true"
@@ -14,7 +10,11 @@ locals {
     {
       name  = "server.ingress.hosts[0]"
       value = local.cd_domain
-    }
+    },
+    {
+      name  = "server.ingress.annotations.`kubernetes.io/ingress.global-static-ip-name`"
+      value = data.google_compute_address.global_static_ip.name
+    },
     # Add more values as needed
   ]
 }
