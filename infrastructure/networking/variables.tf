@@ -49,7 +49,7 @@ variable "subdomains" {
   description = "List of subdomain configurations with their properties"
   type = list(object({
     name         = string
-    network_tier = optional(string, "STANDARD")
+    network_tier = optional(string, "PREMIUM")
     address_type = optional(string, "INTERNAL")
     description  = optional(string, "")
   }))
