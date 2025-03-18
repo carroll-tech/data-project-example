@@ -1,5 +1,6 @@
 locals {
-  cd_domain = data.google_compute_address.global_static_ip.address
+  # Construct a proper DNS name using the project name
+  cd_domain = "cd.${data.tfe_outputs.networking.nonsensitive_values.project}.net"
   
   # Define Helm set values here
   helm_set_values = [
@@ -8,12 +9,8 @@ locals {
       value = "true"
     },
     {
-      name  = "server.ingress.hosts[0]"
+      name  = "global.domain"
       value = local.cd_domain
-    },
-    {
-      name  = "server.ingress.annotations.kubernetes.io/ingress.global-static-ip-name"
-      value = data.google_compute_address.global_static_ip.name
     },
     # Add more values as needed
   ]
