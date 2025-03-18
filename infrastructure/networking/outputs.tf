@@ -72,6 +72,20 @@ output "domain_ip_mapping" {
   }
 }
 
+# Map of static IP names to their details (FQDN, IP address, description)
+output "static_ip_details" {
+  description = "Map of static IP names to their FQDN, IP address, and description"
+  value = {
+    for i, ip in google_compute_address.static_ip :
+    ip.name => {
+      fqdn        = "${var.subdomains[i].name}.${local.domain_base}"
+      ip_address  = ip.address
+      description = ip.description
+    }
+  }
+  sensitive = true
+}
+
 output "subdomain_configs" {
   description = "The complete subdomain configurations used"
   value       = var.subdomains
