@@ -8,28 +8,6 @@ output "region" {
   value       = var.region
 }
 
-
-# DNS outputs are commented out since DNS resources are not being created
-# Uncomment if you enable the DNS resources
-/*
-output "dns_zone_name" {
-  description = "The name of the DNS zone if DNS is enabled"
-  value       = var.enable_dns ? google_dns_managed_zone.domain_zone[0].name : null
-}
-
-output "dns_records" {
-  description = "Map of subdomains to their corresponding IP addresses"
-  value       = var.enable_dns ? {
-    for i, subdomain in local.subdomain_names :
-    subdomain => {
-      domain = "${subdomain}.${local.domain_base}"
-      ip     = google_compute_address.static_ip[i].address
-      url    = "https://${subdomain}.${local.domain_base}/"
-    }
-  } : null
-}
-*/
-
 # Comprehensive map of static IP details
 output "static_ip_details" {
   description = "Map of static IP names to their complete details"
