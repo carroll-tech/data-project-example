@@ -50,7 +50,7 @@ jobs:
         
       - name: Terraform Output
         id: output
-        run: terraform output -json
+        run: terraform output
         continue-on-error: true
         
       - name: Post Apply Summary
