@@ -1,5 +1,6 @@
 locals {
   # Define any local variables here
+  domain_base = "data-project-example.net"
 }
 
 variable "project" {
@@ -42,4 +43,16 @@ variable "labels" {
   description = "Labels to apply to the static IP addresses"
   type        = map(string)
   default     = {}
+}
+
+variable "subdomains" {
+  description = "List of subdomains to use for static IPs (e.g., ['cd', 'api', 'dashboard'])"
+  type        = list(string)
+  default     = ["cd"]
+}
+
+variable "enable_dns" {
+  description = "Whether to create DNS records for the static IPs"
+  type        = bool
+  default     = true
 }
