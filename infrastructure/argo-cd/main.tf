@@ -1,5 +1,22 @@
 locals {
   cd_domain = data.tfe_outputs.networking.values.static_ip_details["cd"].fqdn
+  
+  # Define Helm set values here
+  helm_set_values = [
+    {
+      name  = "server.service.type"
+      value = "ClusterIP"
+    },
+    {
+      name  = "server.ingress.enabled"
+      value = "true"
+    },
+    {
+      name  = "server.ingress.hosts[0]"
+      value = local.cd_domain
+    }
+    # Add more values as needed
+  ]
 }
 
 resource "kubernetes_namespace" "main" {
@@ -17,6 +34,15 @@ resource "helm_release" "main" {
   chart      = "argo-cd"
 
   values = [ for values in fileset(path.module, "values/*.yaml"): "${file(values)}"]
+
+  dynamic "set" {
+    for_each = local.helm_set_values
+    content {
+      name  = set.value.name
+      value = set.value.value
+      type  = lookup(set.value, "type", null)
+    }
+  }
 
   cleanup_on_fail = true
   recreate_pods   = true
