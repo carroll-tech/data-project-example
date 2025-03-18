@@ -74,5 +74,5 @@ output "domain_ip_mapping" {
 
 output "subdomain_configs" {
   description = "The complete subdomain configurations used"
-  value       = local.effective_subdomains
+  value       = var.subdomains
 }
