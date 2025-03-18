@@ -46,13 +46,20 @@ variable "labels" {
 }
 
 variable "subdomains" {
-  description = "List of subdomains to use for static IPs (e.g., ['cd', 'api', 'dashboard'])"
-  type        = list(string)
-  default     = ["cd"]
+  description = "List of subdomain configurations with their properties"
+  type = list(object({
+    name         = string
+    network_tier = optional(string, "STANDARD")
+    address_type = optional(string, "INTERNAL")
+    description  = optional(string, "")
+  }))
+  default = [{
+    name = "cd"
+  }]
 }
 
 variable "enable_dns" {
-  description = "Whether to create DNS records for the static IPs"
+  description = "Whether to create DNS records for the static IPs (currently disabled due to permission issues)"
   type        = bool
-  default     = true
+  default     = false
 }

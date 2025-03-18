@@ -25,19 +25,22 @@ output "static_ip_self_links" {
 
 output "subdomains" {
   description = "The subdomains used for the static IPs"
-  value       = local.effective_subdomains
+  value       = local.subdomain_names
 }
 
 output "domain_names" {
   description = "The full domain names (e.g., cd.data-project-example.net)"
-  value       = [for subdomain in local.effective_subdomains : "${subdomain}.${local.domain_base}"]
+  value       = [for subdomain in local.subdomain_names : "${subdomain}.${local.domain_base}"]
 }
 
 output "https_urls" {
   description = "The HTTPS URLs for the domains (e.g., https://cd.data-project-example.net/)"
-  value       = [for subdomain in local.effective_subdomains : "https://${subdomain}.${local.domain_base}/"]
+  value       = [for subdomain in local.subdomain_names : "https://${subdomain}.${local.domain_base}/"]
 }
 
+# DNS outputs are commented out since DNS resources are not being created
+# Uncomment if you enable the DNS resources
+/*
 output "dns_zone_name" {
   description = "The name of the DNS zone if DNS is enabled"
   value       = var.enable_dns ? google_dns_managed_zone.domain_zone[0].name : null
@@ -46,11 +49,30 @@ output "dns_zone_name" {
 output "dns_records" {
   description = "Map of subdomains to their corresponding IP addresses"
   value       = var.enable_dns ? {
-    for i, subdomain in local.effective_subdomains :
+    for i, subdomain in local.subdomain_names :
     subdomain => {
       domain = "${subdomain}.${local.domain_base}"
       ip     = google_compute_address.static_ip[i].address
       url    = "https://${subdomain}.${local.domain_base}/"
     }
   } : null
+}
+*/
+
+# Alternative DNS-like output that doesn't depend on actual DNS resources
+output "domain_ip_mapping" {
+  description = "Map of domains to their corresponding IP addresses (for manual DNS configuration)"
+  value = {
+    for i, subdomain in local.subdomain_names :
+    subdomain => {
+      domain = "${subdomain}.${local.domain_base}"
+      ip     = google_compute_address.static_ip[i].address
+      url    = "https://${subdomain}.${local.domain_base}/"
+    }
+  }
+}
+
+output "subdomain_configs" {
+  description = "The complete subdomain configurations used"
+  value       = local.effective_subdomains
 }
