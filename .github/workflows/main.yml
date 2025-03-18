@@ -47,7 +47,10 @@ jobs:
   terraform-apply:
     name: Apply Terraform Changes
     if: "!contains(github.event.head_commit.message, 'skip ci')"
+    strategy:
+      matrix:
+        module: [cluster, networking]
     uses: ./.github/workflows/terraform.yml
     with:
-      working_directory: infrastructure/cluster
+      working_directory: infrastructure/${{ matrix.module }}
     secrets: inherit
