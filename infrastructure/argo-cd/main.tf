@@ -1,3 +1,7 @@
+locals {
+  cd_domain = data.tfe_outputs.networking.values.static_ip_details["cd"].fqdn
+}
+
 resource "kubernetes_namespace" "main" {
   metadata {
     name = var.kubernetes_namespace
