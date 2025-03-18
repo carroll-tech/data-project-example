@@ -3,6 +3,11 @@ variable "cluster_terraform_workspace" {
   default     = "data-project-example-cluster"
 }
 
+variable "networking_terraform_workspace" {
+  description = "Terraform Cloud workspace for the networking"
+  default     = "data-project-example-networking"
+}
+
 variable "kubernetes_namespace" {
   description = "Kubernetes namespace to create and use for Argo CD deployment"
   default     = "argo-cd"

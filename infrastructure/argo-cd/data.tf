@@ -3,6 +3,11 @@ data "tfe_outputs" "cluster" {
   workspace    = var.cluster_terraform_workspace
 }
 
+data "tfe_outputs" "networking" {
+  organization = "jolfr-personal"
+  workspace    = var.networking_terraform_workspace
+}
+
 data "google_client_config" "default" {}
 
 data "google_container_cluster" "main" {
