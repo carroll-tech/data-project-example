@@ -12,7 +12,7 @@ locals {
       value = local.cd_domain
     },
     {
-      name  = "server.ingress.annotations.`kubernetes.io/ingress.global-static-ip-name`"
+      name  = "server.ingress.annotations.kubernetes.io/ingress.global-static-ip-name"
       value = data.google_compute_address.global_static_ip.name
     },
     # Add more values as needed
