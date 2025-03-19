@@ -1,4 +1,4 @@
-# [0.4.0](https://github.com/jolfr/data-project-example/compare/v0.3.2...v0.4.0) (2025-03-19)
+## [0.4.1](https://github.com/jolfr/data-project-example/compare/v0.4.0...v0.4.1) (2025-03-19)
 
 
 ### Bug Fixes
@@ -11,10 +11,10 @@
 * **infra:** add support for setting values in helm_release for argo-cd ([b1cc8c5](https://github.com/jolfr/data-project-example/commit/b1cc8c51981de4f840d130bef2c0f073e0872db1))
 * **infra:** added region to outputs ([c5eed89](https://github.com/jolfr/data-project-example/commit/c5eed8969ee7366adfe0ec38b485db5a00e0d0bb))
 * **infra:** added tfe provider for output lookup ([836b7c7](https://github.com/jolfr/data-project-example/commit/836b7c72c41ab0829c0fd8470ce9fc8079a8d352))
-* **infra:** adding back region output ([69abd35](https://github.com/jolfr/data-project-example/commit/69abd358a0948917634c35b2523c5a8d33b73f9f))
 * **infra:** correct global static IP usage in ArgoCD configuration ([cf5cd00](https://github.com/jolfr/data-project-example/commit/cf5cd00e4f3106f7df74993f8490afa3234d9a4c))
 * **infra:** fixing output passing to google provider ([b3d67e1](https://github.com/jolfr/data-project-example/commit/b3d67e135e81e8566a74b6b1aced5b8df45b980d))
 * **infra:** remove ArgoCD server ingress configuration ([0a6316d](https://github.com/jolfr/data-project-example/commit/0a6316d74354ff4a071db2a2d9c6fb8bbd3a6fa0))
+* **infra:** remove argocd_admin_password passthrough ([92afe7c](https://github.com/jolfr/data-project-example/commit/92afe7ccd41fab09b450bb37322778747db8a57d))
 * **infra:** remove backticks from kubernetes annotation key ([1e1f33b](https://github.com/jolfr/data-project-example/commit/1e1f33b3ec9acb09a9bbf4de637a852317510141))
 * **infra:** rollback helm provider version ([efcf86c](https://github.com/jolfr/data-project-example/commit/efcf86cbd12d95ff5b8226f36690021626acc228))
 * **infra:** updated backend config to point to ui service ([fe3e163](https://github.com/jolfr/data-project-example/commit/fe3e163a457235ff979a7eeb421f9844dec8abb4))
