@@ -1,4 +1,4 @@
-# [0.5.0](https://github.com/jolfr/data-project-example/compare/v0.4.1...v0.5.0) (2025-03-19)
+## [0.5.1](https://github.com/jolfr/data-project-example/compare/v0.5.0...v0.5.1) (2025-03-19)
 
 
 ### Bug Fixes
@@ -6,13 +6,13 @@
 * add default destination.server value to ArgoCD app of apps chart ([fa1db73](https://github.com/jolfr/data-project-example/commit/fa1db738650d0ca93b3d0cd5e1b0c57d0c1d7a40))
 * **ci:** changed to run on all workflow changes ([e5a8328](https://github.com/jolfr/data-project-example/commit/e5a8328a0a4d983977638919f3e7fa53b6d94690))
 * **ci:** refactor workflows to run networking module using matrix strategy ([027945b](https://github.com/jolfr/data-project-example/commit/027945b9d3c926cdbbc4f3d2d1bb4fa1f3d274e9))
-* **ci:** updated to not output sensitive values ([338b0ff](https://github.com/jolfr/data-project-example/commit/338b0ff29435face95e33a049d1c00a56b65b207))
 * **infra:** add backend config for ports ([f959d01](https://github.com/jolfr/data-project-example/commit/f959d01b46018ce51d8982f062de4781a46a1ee2))
 * **infra:** add lookup for global static IP in ArgoCD data.tf ([737184d](https://github.com/jolfr/data-project-example/commit/737184dd10d1f0e8865679e37a3833e24977aa9d))
 * **infra:** add support for setting values in helm_release for argo-cd ([b1cc8c5](https://github.com/jolfr/data-project-example/commit/b1cc8c51981de4f840d130bef2c0f073e0872db1))
 * **infra:** added region to outputs ([c5eed89](https://github.com/jolfr/data-project-example/commit/c5eed8969ee7366adfe0ec38b485db5a00e0d0bb))
 * **infra:** added tfe provider for output lookup ([836b7c7](https://github.com/jolfr/data-project-example/commit/836b7c72c41ab0829c0fd8470ce9fc8079a8d352))
 * **infra:** correct global static IP usage in ArgoCD configuration ([cf5cd00](https://github.com/jolfr/data-project-example/commit/cf5cd00e4f3106f7df74993f8490afa3234d9a4c))
+* **infra:** fix ArgoCD Terraform module issues ([17ecdbf](https://github.com/jolfr/data-project-example/commit/17ecdbfaf683309a5d3bd4b472ca6770ff59b04e))
 * **infra:** fixing output passing to google provider ([b3d67e1](https://github.com/jolfr/data-project-example/commit/b3d67e135e81e8566a74b6b1aced5b8df45b980d))
 * **infra:** remove ArgoCD server ingress configuration ([0a6316d](https://github.com/jolfr/data-project-example/commit/0a6316d74354ff4a071db2a2d9c6fb8bbd3a6fa0))
 * **infra:** remove argocd_admin_password passthrough ([92afe7c](https://github.com/jolfr/data-project-example/commit/92afe7ccd41fab09b450bb37322778747db8a57d))
@@ -20,6 +20,7 @@
 * **infra:** rollback helm provider version ([efcf86c](https://github.com/jolfr/data-project-example/commit/efcf86cbd12d95ff5b8226f36690021626acc228))
 * **infra:** updated backend config to point to ui service ([fe3e163](https://github.com/jolfr/data-project-example/commit/fe3e163a457235ff979a7eeb421f9844dec8abb4))
 * **infra:** updated domain name ([2b0814c](https://github.com/jolfr/data-project-example/commit/2b0814c6be5341d88f20f0a98904e75048d85e70))
+* remove template directives from values.yaml and update server reference ([0186fa0](https://github.com/jolfr/data-project-example/commit/0186fa03e326622493703fec581827181a892edf))
 * updated repourl ([38b5e3e](https://github.com/jolfr/data-project-example/commit/38b5e3e75cbd8e3f15735c4c5bd2b59e07f32633))
 
 
