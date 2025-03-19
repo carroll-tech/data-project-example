@@ -1,6 +1,6 @@
 # ArgoCD Applications configuration
 applications:
-  - name: "root-app"
+  root-app:
     namespace: "argo-cd"
     project: "default"
     source:
