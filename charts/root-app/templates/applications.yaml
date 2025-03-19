@@ -10,8 +10,8 @@ metadata:
 spec:
   project: {{ .project }}
   source:
-    repoURL: {{ .source.repoURL }}
-    targetRevision: {{ .source.targetRevision }}
+    repoURL: {{ $.Values.spec.source.repoURL }}
+    targetRevision: {{ $.Values.spec.source.targetRevision }}
     path: {{ .source.path }}
     {{- if .source.helm }}
     helm:
