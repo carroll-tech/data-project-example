@@ -1,0 +1,57 @@
+{{- range .Values.applications }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .name }}
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .project }}
+  source:
+    repoURL: {{ .source.repoURL }}
+    targetRevision: {{ .source.targetRevision }}
+    path: {{ .source.path }}
+    {{- if .source.helm }}
+    helm:
+      {{- if .source.helm.valueFiles }}
+      valueFiles:
+      {{- range .source.helm.valueFiles }}
+        - {{ . }}
+      {{- end }}
+      {{- end }}
+      {{- if .source.helm.values }}
+      values: |
+{{ .source.helm.values | indent 8 }}
+      {{- end }}
+      {{- if .source.helm.parameters }}
+      parameters:
+      {{- range .source.helm.parameters }}
+        - name: {{ .name }}
+          value: {{ .value }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+  destination:
+    server: {{ .destination.server }}
+    namespace: {{ .destination.namespace }}
+  {{- if .syncPolicy }}
+  syncPolicy:
+    {{- if .syncPolicy.automated }}
+    automated:
+      {{- if .syncPolicy.automated.prune }}
+      prune: {{ .syncPolicy.automated.prune }}
+      {{- end }}
+      {{- if .syncPolicy.automated.selfHeal }}
+      selfHeal: {{ .syncPolicy.automated.selfHeal }}
+      {{- end }}
+    {{- end }}
+    {{- if .syncPolicy.syncOptions }}
+    syncOptions:
+    {{- range .syncPolicy.syncOptions }}
+      - {{ . }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

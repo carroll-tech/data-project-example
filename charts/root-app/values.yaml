@@ -1,0 +1,28 @@
+applications:
+  - name: hello-world
+    namespace: default
+    project: default
+    source:
+      repoURL: https://github.com/helm/examples.git
+      targetRevision: HEAD
+      path: charts/hello-world
+      helm:
+        valueFiles:
+          - values.yaml
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+
+# Global settings
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: https://github.com/helm/examples.git
+    targetRevision: HEAD
