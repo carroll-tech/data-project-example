@@ -2,6 +2,14 @@
 destination:
   server: https://kubernetes.default.svc
 
+# Default sync policy for all applications
+defaultSyncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
+
 applications:
   - name: hello-world
     namespace: default
@@ -17,12 +25,6 @@ applications:
     destination:
       server: {{ .Values.destination.server }}
       namespace: default
-    syncPolicy:
-      automated:
-        prune: true
-        selfHeal: true
-      syncOptions:
-        - CreateNamespace=true
 
 # Global settings
 spec:

@@ -36,8 +36,8 @@ spec:
   destination:
     server: {{ .destination.server }}
     namespace: {{ .destination.namespace }}
-  {{- if .syncPolicy }}
   syncPolicy:
+  {{- if .syncPolicy }}
     {{- if .syncPolicy.automated }}
     automated:
       {{- if .syncPolicy.automated.prune }}
@@ -50,6 +50,22 @@ spec:
     {{- if .syncPolicy.syncOptions }}
     syncOptions:
     {{- range .syncPolicy.syncOptions }}
+      - {{ . }}
+    {{- end }}
+    {{- end }}
+  {{- else }}
+    {{- if $.Values.defaultSyncPolicy.automated }}
+    automated:
+      {{- if $.Values.defaultSyncPolicy.automated.prune }}
+      prune: {{ $.Values.defaultSyncPolicy.automated.prune }}
+      {{- end }}
+      {{- if $.Values.defaultSyncPolicy.automated.selfHeal }}
+      selfHeal: {{ $.Values.defaultSyncPolicy.automated.selfHeal }}
+      {{- end }}
+    {{- end }}
+    {{- if $.Values.defaultSyncPolicy.syncOptions }}
+    syncOptions:
+    {{- range $.Values.defaultSyncPolicy.syncOptions }}
       - {{ . }}
     {{- end }}
     {{- end }}
