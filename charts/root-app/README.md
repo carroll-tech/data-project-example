@@ -37,7 +37,7 @@ The following table lists the configurable parameters of the chart and their def
 
 ## Example
 
-The default configuration deploys the [hello-world](https://github.com/helm/examples/tree/main/charts/hello-world) application from the Helm examples repository.
+The default configuration deploys the local `hello-world` chart included in this repository.
 
 To add more applications, modify the `applications` list in `values.yaml`:
 
@@ -51,8 +51,9 @@ applications:
     namespace: default
     project: default
     source:
-      repoURL: https://github.com/helm/examples.git
-      targetRevision: HEAD
+      # Using local chart from this repository
+      repoURL: {{ .Values.spec.source.repoURL }}
+      targetRevision: {{ .Values.spec.source.targetRevision }}
       path: charts/hello-world
       helm:
         valueFiles:

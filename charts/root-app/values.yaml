@@ -7,8 +7,9 @@ applications:
     namespace: default
     project: default
     source:
-      repoURL: https://github.com/helm/examples.git
-      targetRevision: HEAD
+      # Using local chart from this repository
+      repoURL: {{ .Values.spec.source.repoURL }}
+      targetRevision: {{ .Values.spec.source.targetRevision }}
       path: charts/hello-world
       helm:
         valueFiles:
@@ -28,5 +29,6 @@ spec:
   destination:
     server: {{ .Values.destination.server }}
   source:
-    repoURL: https://github.com/helm/examples.git
+    # This should be updated to your actual repository URL when deploying
+    repoURL: https://github.com/your-org/your-repo.git
     targetRevision: HEAD
