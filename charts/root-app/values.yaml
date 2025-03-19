@@ -1,3 +1,7 @@
+# Default destination server for all applications
+destination:
+  server: https://kubernetes.default.svc
+
 applications:
   - name: hello-world
     namespace: default
@@ -10,7 +14,7 @@ applications:
         valueFiles:
           - values.yaml
     destination:
-      server: https://kubernetes.default.svc
+      server: {{ .Values.destination.server }}
       namespace: default
     syncPolicy:
       automated:
@@ -22,7 +26,7 @@ applications:
 # Global settings
 spec:
   destination:
-    server: https://kubernetes.default.svc
+    server: {{ .Values.destination.server }}
   source:
     repoURL: https://github.com/helm/examples.git
     targetRevision: HEAD

@@ -21,6 +21,7 @@ The following table lists the configurable parameters of the chart and their def
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `destination.server` | Default Kubernetes API server URL for all applications | `https://kubernetes.default.svc` |
 | `applications` | List of applications to be managed | See `values.yaml` |
 | `applications[].name` | Name of the application | `hello-world` |
 | `applications[].namespace` | Namespace where the application will be deployed | `default` |
@@ -28,7 +29,7 @@ The following table lists the configurable parameters of the chart and their def
 | `applications[].source.repoURL` | Git repository URL containing the application | `https://github.com/helm/examples.git` |
 | `applications[].source.targetRevision` | Git revision to use | `HEAD` |
 | `applications[].source.path` | Path within the Git repository | `charts/hello-world` |
-| `applications[].destination.server` | Kubernetes API server URL | `https://kubernetes.default.svc` |
+| `applications[].destination.server` | Kubernetes API server URL (defaults to `destination.server` if not specified) | `{{ .Values.destination.server }}` |
 | `applications[].destination.namespace` | Target namespace for the application | `default` |
 | `applications[].syncPolicy.automated.prune` | Whether to prune resources | `true` |
 | `applications[].syncPolicy.automated.selfHeal` | Whether to self-heal | `true` |
@@ -41,6 +42,10 @@ The default configuration deploys the [hello-world](https://github.com/helm/exam
 To add more applications, modify the `applications` list in `values.yaml`:
 
 ```yaml
+# Default destination server for all applications
+destination:
+  server: https://kubernetes.default.svc
+
 applications:
   - name: hello-world
     namespace: default
@@ -53,7 +58,7 @@ applications:
         valueFiles:
           - values.yaml
     destination:
-      server: https://kubernetes.default.svc
+      # Uses the default server from destination.server
       namespace: default
     syncPolicy:
       automated:
@@ -70,7 +75,8 @@ applications:
       targetRevision: main
       path: charts/another-app
     destination:
-      server: https://kubernetes.default.svc
+      # You can override the default server for specific applications
+      server: https://another-cluster.example.com
       namespace: another-namespace
     syncPolicy:
       automated:
