@@ -22,7 +22,7 @@ resource "helm_release" "main" {
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
 
-  values = [ for values in fileset(path.module, "values/*.yaml"): "${file(values)}"]
+  values = [ for values in fileset(path.module, "core-values/*.yaml"): "${file(values)}"]
 
   dynamic "set" {
     for_each = local.helm_set_values
