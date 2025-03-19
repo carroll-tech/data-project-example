@@ -46,7 +46,7 @@ jobs:
     name: Terraform Plan
     strategy:
       matrix:
-        module: [cluster, networking]
+        module: [cluster, networking, argo-cd]
     uses: ./.github/workflows/terraform.yml
     with:
       working_directory: infrastructure/${{ matrix.module }}
