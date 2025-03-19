@@ -1,0 +1,34 @@
+# Default destination server for all applications
+destination:
+  server: https://kubernetes.default.svc
+
+applications:
+  - name: hello-world
+    namespace: default
+    project: default
+    source:
+      # Using local chart from this repository
+      repoURL: {{ .Values.spec.source.repoURL }}
+      targetRevision: {{ .Values.spec.source.targetRevision }}
+      path: charts/hello-world
+      helm:
+        valueFiles:
+          - values.yaml
+    destination:
+      server: {{ .Values.destination.server }}
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
+
+# Global settings
+spec:
+  destination:
+    server: {{ .Values.destination.server }}
+  source:
+    # This should be updated to your actual repository URL when deploying
+    repoURL: https://github.com/jolfr/data-project-example.git
+    targetRevision: HEAD

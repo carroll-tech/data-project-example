@@ -1,0 +1,21 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your ArgoCD App of Apps has been deployed!
+
+This chart has created the following ArgoCD applications:
+{{- range .Values.applications }}
+- {{ .name }} (namespace: {{ .destination.namespace }})
+{{- end }}
+
+To check the status of your applications in ArgoCD, run:
+
+  kubectl get applications -n argocd
+
+You can also view the applications in the ArgoCD UI. To access the ArgoCD UI:
+
+1. Get the ArgoCD server URL:
+   kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+2. Login using the admin credentials.
+
+For more information on ArgoCD, visit: https://argo-cd.readthedocs.io/
