@@ -22,6 +22,9 @@ The following table lists the configurable parameters of the chart and their def
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `destination.server` | Default Kubernetes API server URL for all applications | `https://kubernetes.default.svc` |
+| `defaultSyncPolicy.automated.prune` | Default setting for whether to prune resources for all applications | `true` |
+| `defaultSyncPolicy.automated.selfHeal` | Default setting for whether to self-heal for all applications | `true` |
+| `defaultSyncPolicy.syncOptions` | Default sync options for all applications | `["CreateNamespace=true"]` |
 | `applications` | List of applications to be managed | See `values.yaml` |
 | `applications[].name` | Name of the application | `hello-world` |
 | `applications[].namespace` | Namespace where the application will be deployed | `default` |
@@ -31,9 +34,7 @@ The following table lists the configurable parameters of the chart and their def
 | `applications[].source.path` | Path within the Git repository | `charts/hello-world` |
 | `applications[].destination.server` | Kubernetes API server URL (defaults to `destination.server` if not specified) | `{{ .Values.destination.server }}` |
 | `applications[].destination.namespace` | Target namespace for the application | `default` |
-| `applications[].syncPolicy.automated.prune` | Whether to prune resources | `true` |
-| `applications[].syncPolicy.automated.selfHeal` | Whether to self-heal | `true` |
-| `applications[].syncPolicy.syncOptions` | Sync options | `["CreateNamespace=true"]` |
+| `applications[].syncPolicy` | (Optional) Override default sync policy for this application | See `defaultSyncPolicy` |
 
 ## Example
 
@@ -45,6 +46,14 @@ To add more applications, modify the `applications` list in `values.yaml`:
 # Default destination server for all applications
 destination:
   server: https://kubernetes.default.svc
+
+# Default sync policy for all applications
+defaultSyncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
 
 applications:
   - name: hello-world
@@ -61,12 +70,7 @@ applications:
     destination:
       # Uses the default server from destination.server
       namespace: default
-    syncPolicy:
-      automated:
-        prune: true
-        selfHeal: true
-      syncOptions:
-        - CreateNamespace=true
+    # No syncPolicy specified, will use defaultSyncPolicy
   
   - name: another-app
     namespace: another-namespace
@@ -79,9 +83,11 @@ applications:
       # You can override the default server for specific applications
       server: https://another-cluster.example.com
       namespace: another-namespace
+    # Override default sync policy for this specific application
     syncPolicy:
       automated:
-        prune: true
+        prune: false  # Override default value
         selfHeal: true
       syncOptions:
         - CreateNamespace=true
+        - ApplyOutOfSyncOnly=true  # Additional option not in default

@@ -1,0 +1,18 @@
+# ArgoCD Applications configuration
+applications:
+  root-app:
+    namespace: "argo-cd"
+    project: "default"
+    source:
+      repoURL: "https://github.com/jolfr/data-project-example.git"
+      targetRevision: "charts"
+      path: "charts/root-app"
+    destination:
+      server: "https://kubernetes.default.svc"
+      namespace: "argo-cd"
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - "CreateNamespace=true"

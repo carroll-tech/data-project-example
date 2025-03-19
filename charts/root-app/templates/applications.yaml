@@ -4,14 +4,14 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ .name }}
-  namespace: argocd
+  namespace: {{ $.Values.argocd.namespace }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ .project }}
   source:
-    repoURL: {{ .source.repoURL }}
-    targetRevision: {{ .source.targetRevision }}
+    repoURL: {{ $.Values.spec.source.repoURL }}
+    targetRevision: {{ $.Values.spec.source.targetRevision }}
     path: {{ .source.path }}
     {{- if .source.helm }}
     helm:
@@ -34,10 +34,10 @@ spec:
       {{- end }}
     {{- end }}
   destination:
-    server: {{ .destination.server }}
+    server: {{ $.Values.spec.destination.server }}
     namespace: {{ .destination.namespace }}
-  {{- if .syncPolicy }}
   syncPolicy:
+  {{- if .syncPolicy }}
     {{- if .syncPolicy.automated }}
     automated:
       {{- if .syncPolicy.automated.prune }}
@@ -50,6 +50,22 @@ spec:
     {{- if .syncPolicy.syncOptions }}
     syncOptions:
     {{- range .syncPolicy.syncOptions }}
+      - {{ . }}
+    {{- end }}
+    {{- end }}
+  {{- else }}
+    {{- if $.Values.defaultSyncPolicy.automated }}
+    automated:
+      {{- if $.Values.defaultSyncPolicy.automated.prune }}
+      prune: {{ $.Values.defaultSyncPolicy.automated.prune }}
+      {{- end }}
+      {{- if $.Values.defaultSyncPolicy.automated.selfHeal }}
+      selfHeal: {{ $.Values.defaultSyncPolicy.automated.selfHeal }}
+      {{- end }}
+    {{- end }}
+    {{- if $.Values.defaultSyncPolicy.syncOptions }}
+    syncOptions:
+    {{- range $.Values.defaultSyncPolicy.syncOptions }}
       - {{ . }}
     {{- end }}
     {{- end }}
