@@ -22,3 +22,9 @@ variable "helm_chart_version" {
   description = "Version of the helm chart to use for Argo CD deployment"
   default     = "7.8.10"
 }
+
+variable "argocd_admin_password" {
+  description = "Admin password for Argo CD"
+  type        = string
+  sensitive   = true
+}

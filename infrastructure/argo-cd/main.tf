@@ -5,6 +5,10 @@ locals {
   # Define Helm set values here
   helm_set_values = [
     {
+      name = "configs.secret.argocdServerAdminPassword"
+      value = var.argocd_admin_password
+    },
+    {
       name  = "server.ingress.enabled"
       value = "true"
     },
