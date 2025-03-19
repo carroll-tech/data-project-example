@@ -34,7 +34,7 @@ spec:
       {{- end }}
     {{- end }}
   destination:
-    server: {{ .destination.server }}
+    server: {{ $.Values.spec.destination.server }}
     namespace: {{ .destination.namespace }}
   syncPolicy:
   {{- if .syncPolicy }}
