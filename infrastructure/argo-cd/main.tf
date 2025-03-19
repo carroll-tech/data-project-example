@@ -8,14 +8,6 @@ locals {
       name = "configs.secret.argocdServerAdminPassword"
       value = var.argocd_admin_password
     },
-    {
-      name  = "server.ingress.enabled"
-      value = "true"
-    },
-    {
-      name  = "global.domain"
-      value = local.cd_domain
-    },
     # Add more values as needed
   ]
 }
