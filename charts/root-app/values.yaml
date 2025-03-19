@@ -30,5 +30,5 @@ spec:
     server: {{ .Values.destination.server }}
   source:
     # This should be updated to your actual repository URL when deploying
-    repoURL: https://github.com/your-org/your-repo.git
+    repoURL: https://github.com/jolfr/data-project-example.git
     targetRevision: HEAD
