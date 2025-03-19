@@ -4,11 +4,7 @@ locals {
   
   # Define Helm set values here
   helm_set_values = [
-    {
-      name = "configs.secret.argocdServerAdminPassword"
-      value = var.argocd_admin_password
-    },
-    # Add more values as needed
+    # Add values as needed
   ]
 }
 
