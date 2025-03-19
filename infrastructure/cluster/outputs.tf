@@ -4,8 +4,8 @@ output "project" {
 }
 
 output "region" {
-  description = "The region where the resources are deployed"
-  value       = var.region
+  description = "The GCP region where the resources are deployed"
+  value = var.region
 }
 
 output "cluster_name" {
