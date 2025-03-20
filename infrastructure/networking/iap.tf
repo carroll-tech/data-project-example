@@ -1,17 +1,28 @@
 # IAP (Identity-Aware Proxy) Configuration for GitHub Authentication
 
-# Create an OAuth brand for IAP
+# Check if IAP should be enabled
+locals {
+  # We need to disable IAP if the project is not part of an organization
+  enable_iap = false # Disabled due to project not being part of a GCP organization
+}
+
+# IAP Brand and Client resources are commented out since the project is not part of a GCP organization
+# Uncomment these resources when the project is moved to a GCP organization
+
+/*
 resource "google_iap_brand" "default" {
+  count            = local.enable_iap ? 1 : 0
   support_email     = local.support_email
   application_title = var.iap_settings.application_title
   project           = data.google_project.current.project_id
 }
 
-# Create an OAuth client for IAP
 resource "google_iap_client" "default" {
+  count        = local.enable_iap && length(google_iap_brand.default) > 0 ? 1 : 0
   display_name = "GitHub OAuth Client"
-  brand        = google_iap_brand.default.name
+  brand        = google_iap_brand.default[0].name
 }
+*/
 
 # IAP Web Backend Service IAM Member for each subdomain
 resource "google_iap_web_backend_service_iam_member" "member" {
@@ -23,7 +34,7 @@ resource "google_iap_web_backend_service_iam_member" "member" {
   project = var.project
   web_backend_service = google_compute_backend_service.backend_service[each.key].name
   role = "roles/iap.httpsResourceAccessor"
-  member = "user:${local.current_user_email}"
+  member = local.current_user_email_with_prefix
 }
 
 # Backend service for each subdomain
@@ -103,8 +114,7 @@ resource "google_compute_managed_ssl_certificate" "ssl_cert" {
   
   managed {
     domains = [
-      each.key == "root" ? local.domain_base : "${each.key}.${local.domain_base}",
-      each.key == "root" ? "*.${local.domain_base}" : "*.${each.key}.${local.domain_base}"
+      each.key == "root" ? local.domain_base : "${each.key}.${local.domain_base}"
     ]
   }
 }
@@ -120,5 +130,5 @@ resource "google_compute_global_forwarding_rule" "forwarding_rule" {
   project    = var.project
   target     = google_compute_target_https_proxy.https_proxy[each.key].id
   port_range = "443"
-  ip_address = google_compute_address.static_ip[index(local.subdomain_names, each.key)].address
+  ip_address = google_compute_global_address.static_ip[each.key].address
 }

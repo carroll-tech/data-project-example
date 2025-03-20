@@ -6,19 +6,18 @@ locals {
   subnet_regions = [for s in var.subnets : s.region != null ? s.region : var.region]
 }
 
-resource "google_compute_address" "static_ip" {
-  count        = length(var.subdomains)
-  name         = "${var.project}-${var.subdomains[count.index].name}"
-  region       = var.region
-  address_type = var.subdomains[count.index].address_type
+# Create global static IPs for global forwarding rules
+resource "google_compute_global_address" "static_ip" {
+  for_each     = { for i, s in var.subdomains : s.name => s }
+  name         = "${var.project}-${each.key}"
+  address_type = each.value.address_type
   description  = coalesce(
-    var.subdomains[count.index].description,
-    "Static IP for ${var.subdomains[count.index].name}.${local.domain_base}"
+    each.value.description,
+    "Global static IP for ${each.key}.${local.domain_base}"
   )
-  network_tier = var.subdomains[count.index].network_tier
-
+  
   labels = merge(var.labels, {
-    subdomain = var.subdomains[count.index].name
+    subdomain = each.key
     domain    = replace(local.domain_base, ".", "-")
   })
 }

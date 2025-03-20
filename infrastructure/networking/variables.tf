@@ -97,6 +97,12 @@ variable "enable_dns" {
   default     = false
 }
 
+variable "enable_iap" {
+  description = "Whether to enable Identity-Aware Proxy (IAP) for application authentication. Requires the project to be part of an organization."
+  type        = bool
+  default     = true
+}
+
 # VPC Configuration
 variable "vpc_name" {
   description = "Name of the VPC to create"

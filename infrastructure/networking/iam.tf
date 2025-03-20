@@ -40,6 +40,9 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.ref"        = "assertion.ref"
   }
   
+  # Add attribute condition to restrict to specific repository
+  attribute_condition = "attribute.repository==\"${var.github_username}/data-project-example\""
+  
   # GitHub-specific OIDC configuration
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"

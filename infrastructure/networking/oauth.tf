@@ -15,7 +15,7 @@ resource "google_iap_web_backend_service_iam_binding" "read_access" {
   role = "roles/iap.httpsResourceAccessor"
   
   members = [
-    "user:${local.current_user_email}",
+    local.current_user_email_with_prefix,
     # In a real implementation, this would include GitHub users with READ access
     # This is a placeholder for demonstration purposes
     # "group:github-read-access@example.com"
@@ -34,7 +34,7 @@ resource "google_iap_web_backend_service_iam_binding" "write_access" {
   role = "roles/iap.httpsResourceAccessor"
   
   members = [
-    "user:${local.current_user_email}",
+    local.current_user_email_with_prefix,
     # In a real implementation, this would include GitHub users with WRITE access
     # This is a placeholder for demonstration purposes
     # "group:github-write-access@example.com"
@@ -53,7 +53,7 @@ resource "google_iap_web_backend_service_iam_binding" "admin_access" {
   role = "roles/iap.httpsResourceAccessor"
   
   members = [
-    "user:${local.current_user_email}",
+    local.current_user_email_with_prefix,
     # In a real implementation, this would include GitHub users with ADMIN access
     # This is a placeholder for demonstration purposes
     # "group:github-admin-access@example.com"
@@ -71,7 +71,7 @@ resource "google_project_iam_binding" "github_read_access" {
   role = each.key
   
   members = [
-    "user:${local.current_user_email}",
+    local.current_user_email_with_prefix,
     # In a real implementation, this would include GitHub users with READ access
     # This is a placeholder for demonstration purposes
     # "group:github-read-access@example.com"
@@ -86,7 +86,7 @@ resource "google_project_iam_binding" "github_write_access" {
   role = each.key
   
   members = [
-    "user:${local.current_user_email}",
+    local.current_user_email_with_prefix,
     # In a real implementation, this would include GitHub users with WRITE access
     # This is a placeholder for demonstration purposes
     # "group:github-write-access@example.com"
@@ -101,7 +101,7 @@ resource "google_project_iam_binding" "github_admin_access" {
   role = each.key
   
   members = [
-    "user:${local.current_user_email}",
+    local.current_user_email_with_prefix,
     # In a real implementation, this would include GitHub users with ADMIN access
     # This is a placeholder for demonstration purposes
     # "group:github-admin-access@example.com"
