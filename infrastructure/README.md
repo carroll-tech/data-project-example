@@ -47,14 +47,32 @@ For each workspace:
 3. Enter the workspace name and click "Create workspace"
 4. In the workspace settings, set the Terraform Working Directory to the corresponding subdirectory (e.g., `infrastructure/networking`)
 
-### 4. Configure Variables
+### 4. Configure Variables Using a Project Variable Set
 
-For each workspace, set the following variables:
+Instead of setting the Google Cloud credentials individually in each workspace, create a project Variable Set to share the credentials across all workspaces:
 
-1. Go to the workspace
-2. Navigate to "Variables"
-3. Add the following environment variables:
-   - `GOOGLE_CREDENTIALS` (mark as sensitive) - The JSON content of your Google service account key
+1. Sign in to Terraform Cloud and navigate to your organization's Settings page
+2. Click "Variable Sets"
+3. Click "Create variable set"
+4. Enter a descriptive name (e.g., "Google Cloud Credentials")
+5. Add a description that explains the purpose of the variable set
+6. Choose the scope:
+   - For organization-wide access: Select "Organization-owned" and "Apply globally"
+   - For project-specific access: Select "Project-owned" and "Apply to the entire project"
+7. Add the `GOOGLE_CREDENTIALS` environment variable:
+   - Click "+ Add variable"
+   - Choose "Environment variable"
+   - Enter `GOOGLE_CREDENTIALS` as the variable name
+   - For the value, paste the JSON content of your Google service account key with newline characters removed:
+     ```bash
+     # Use this command to copy the credentials with newlines removed
+     cat terraform-key.json | tr -d '\n' ' '
+     ```
+   - Mark the variable as "Sensitive"
+   - Click "Save variable"
+8. Click "Create variable set"
+
+All workspaces in the project will now have access to the Google Cloud credentials.
 
 ### 5. Configure Terraform CLI
 
@@ -144,11 +162,14 @@ gcloud iam service-accounts keys create terraform-key.json \
   --iam-account=terraform@PROJECT_ID.iam.gserviceaccount.com
 ```
 
-### 6. Upload Service Account Key to Terraform Cloud
+### 6. Prepare Service Account Key for Terraform Cloud
 
 1. Open the `terraform-key.json` file
-2. Copy its contents
-3. In Terraform Cloud, add this as the `GOOGLE_CREDENTIALS` environment variable for each workspace (mark as sensitive)
+2. Use the following command to copy the contents with newlines removed:
+   ```bash
+   cat terraform-key.json | tr -d '\n' ' '
+   ```
+3. Use this formatted key in the Variable Set you created in the Terraform Cloud Setup section
 
 ## Infrastructure Components
 
