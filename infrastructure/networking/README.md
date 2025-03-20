@@ -57,42 +57,80 @@ The following diagram shows the enhanced architecture with GitHub authentication
 ```mermaid
 graph TD
     Internet((Internet)) --> LB[Load Balancer with Public IP]
-    LB --> IAP[Identity-Aware Proxy]
+    LB --> SSLCert[Managed SSL Certificates]
+    SSLCert --> IAP[Identity-Aware Proxy]
     IAP --> Auth[GitHub OAuth Authentication]
     Auth --> RBAC[Role-Based Access Control]
-    RBAC --> Ingress[Kubernetes Ingress Controller]
+    RBAC --> BackendSvc[Backend Services]
+    BackendSvc --> HealthCheck[Health Checks]
+    BackendSvc --> Ingress[Kubernetes Ingress Controller]
     Ingress --> ArgoCD[Argo CD - cd.data-project-example.net]
     Ingress --> HelloWorld[Hello World - data-project-example.net]
     Ingress --> OtherApps[Other Apps - *.data-project-example.net]
+    Ingress --> NestedApps[Nested Apps - *.subdomain.data-project-example.net]
     
     subgraph "GitHub Integration"
-    GitRepo[GitHub Repository] --> Roles[Repository Roles]
-    Roles --> RepoRole1[READ]
-    Roles --> RepoRole2[WRITE]
-    Roles --> RepoRole3[ADMIN]
-    RepoRole1 --> HelloWorld
-    RepoRole2 --> ArgoCD
-    RepoRole3 --> OtherApps
+        subgraph "User Authentication"
+            GitRepo[GitHub Repository] --> Roles[Repository Roles]
+            Roles --> RepoRole1[READ]
+            Roles --> RepoRole2[WRITE]
+            Roles --> RepoRole3[ADMIN]
+            RepoRole1 --> IAMRead[IAM Role Bindings]
+            RepoRole2 --> IAMWrite[IAM Role Bindings]
+            RepoRole3 --> IAMAdmin[IAM Role Bindings]
+            IAMRead --> HelloWorld
+            IAMWrite --> ArgoCD
+            IAMAdmin --> OtherApps
+        end
+        
+        subgraph "CI/CD Authentication"
+            GitHubActions[GitHub Actions] --> OIDC[OIDC Token]
+            OIDC --> WIF[Workload Identity Federation]
+            WIF --> ServiceAccount[Network Admin Service Account]
+            ServiceAccount --> GCPResources[GCP Resources]
+        end
     end
     
     subgraph "GKE Cluster"
-    Ingress
-    ArgoCD
-    HelloWorld
-    OtherApps
-    InternalDNS[Kubernetes DNS]
-    InternalDNS --> ClusterServices[Internal Services]
+        Ingress
+        ArgoCD --> HelmCharts[Helm Charts]
+        HelmCharts --> HelloWorld
+        HelmCharts --> OtherApps
+        HelloWorld
+        OtherApps
+        NestedApps
+        InternalDNS[Kubernetes DNS]
+        InternalDNS --> ClusterServices[Internal Services]
+        
+        subgraph "Kubectl Access"
+            User((User)) --> GitHubAuth[GitHub Authentication]
+            GitHubAuth --> IAPTunnel[IAP Tunnel]
+            IAPTunnel --> APIServer[Kubernetes API Server]
+            APIServer --> KubeResources[Kubernetes Resources]
+        end
     end
     
     subgraph "Networking Module"
-    VPC[VPC: Private Network] --> Subnet1[Primary Subnet: Nodes]
-    VPC --> Subnet2[Secondary Subnet: Optional]
-    Subnet1 --> SecRange1[Secondary Range: Pods]
-    Subnet1 --> SecRange2[Secondary Range: Services]
-    VPC --> FW[Firewall Rules]
-    FW --> FW1[Allow internal traffic]
-    FW --> FW2[Allow health checks]
-    FW --> FW3[Allow IAP traffic]
+        VPC[VPC: Private Network] --> Subnet1[Primary Subnet: Nodes]
+        VPC --> Subnet2[Secondary Subnet: Optional]
+        Subnet1 --> SecRange1[Secondary Range: Pods]
+        Subnet1 --> SecRange2[Secondary Range: Services]
+        VPC --> FW[Firewall Rules]
+        FW --> FW1[Allow internal traffic]
+        FW --> FW2[Allow health checks]
+        FW --> FW3[Allow IAP traffic]
+        FW --> FW4[Allow API server access]
+    end
+    
+    subgraph "Netlify DNS"
+        NetlifyDNS[Netlify DNS Management] --> RootRecord[A Record: data-project-example.net]
+        NetlifyDNS --> CDRecord[A Record: cd.data-project-example.net]
+        NetlifyDNS --> WildcardRecord[Wildcard A Record: *.data-project-example.net]
+        NetlifyDNS --> NestedWildcard[Wildcard A Record: *.subdomain.data-project-example.net]
+        RootRecord --> LB
+        CDRecord --> LB
+        WildcardRecord --> LB
+        NestedWildcard --> LB
     end
 ```
 
