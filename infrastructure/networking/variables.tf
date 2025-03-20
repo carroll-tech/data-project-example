@@ -9,6 +9,22 @@ locals {
   }
 }
 
+#--------------------------------------------------------------
+# Workload Identity Federation Variables
+#--------------------------------------------------------------
+
+variable "project_id_prefix" {
+  description = "Prefix for the Workload Identity Pool ID (alphanumeric, hyphens allowed)"
+  type        = string
+  default     = "dataproj"
+}
+
+variable "github_username" {
+  description = "GitHub username that owns the repository"
+  type        = string
+  default     = "jolfr"  # Replace with your actual GitHub username
+}
+
 variable "project" {
   description = "GCP project to deploy resources within"
   type        = string

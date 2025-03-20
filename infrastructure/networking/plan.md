@@ -41,6 +41,16 @@ Add to `outputs.tf`:
 
 Ensure the new VPC and subnet resources work alongside the existing static IP resources.
 
+### 6. Add IAM and Workload Identity Federation
+
+Add a new file `iam.tf` to implement:
+- A dedicated service account for network administration
+- IAM role bindings for the service account
+- Workload Identity Federation pool and provider for GitHub Actions
+- IAM bindings to allow GitHub Actions to impersonate the service account
+
+This enables secure authentication from GitHub Actions workflows to GCP without using service account keys.
+
 ## Proposed Architecture
 
 ```mermaid
@@ -53,11 +63,33 @@ graph TD
     FW --> FW1[Allow internal traffic]
     FW --> FW2[Allow health checks]
     FW --> FW3[Allow API server]
+    
+    subgraph IAM[IAM & Authentication]
+    SA[Network Admin Service Account] --> Roles[IAM Roles]
+    Roles --> Role1[Network Admin]
+    Roles --> Role2[Security Admin]
+    Roles --> Role3[DNS Admin]
+    WIF[Workload Identity Federation] --> Pool[GitHub Identity Pool]
+    Pool --> Provider[GitHub Provider]
+    Provider --> Binding[IAM Binding]
+    Binding --> SA
+    end
 ```
 
 ## Code Changes
 
 I'll need to modify:
-1. `variables.tf` - Add new variables
+1. `variables.tf` - Add new variables for VPC, subnets, and Workload Identity Federation
 2. `main.tf` - Add VPC and subnet resources
-3. `outputs.tf` - Add new outputs
+3. `outputs.tf` - Add new outputs for VPC, subnets, and Workload Identity Federation
+4. `data.tf` - Add data source to get project number
+5. Create `iam.tf` - Add service account, IAM roles, and Workload Identity Federation resources
+
+## GitHub Workflow Integration
+
+The Workload Identity Federation setup will integrate with the existing GitHub Actions workflows:
+1. The service account and Workload Identity resources will be created as part of the networking module
+2. The GitHub Actions workflows will be updated to use Workload Identity Federation for authentication
+3. Repository secrets will be added for the Workload Identity provider and service account email
+
+This approach provides secure authentication without service account keys while leveraging the existing CI/CD pipeline structure.

@@ -89,3 +89,37 @@ output "subnet_secondary_ranges" {
   }
   sensitive = true
 }
+
+#--------------------------------------------------------------
+# IAM and Workload Identity Federation Outputs
+#--------------------------------------------------------------
+
+output "workload_identity_provider" {
+  description = "The full resource name of the Workload Identity Provider"
+  value       = "projects/${data.google_project.current.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_pool.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.github_provider.workload_identity_pool_provider_id}"
+  sensitive   = true
+}
+
+output "network_service_account_email" {
+  description = "The email of the service account that GitHub Actions will impersonate"
+  value       = google_service_account.network_admin.email
+  sensitive   = true
+}
+
+output "workload_identity_pool_name" {
+  description = "The name of the Workload Identity Pool"
+  value       = google_iam_workload_identity_pool.github_pool.display_name
+  sensitive   = true
+}
+
+output "workload_identity_provider_display_name" {
+  description = "The display name of the Workload Identity Provider"
+  value       = google_iam_workload_identity_pool_provider.github_provider.display_name
+  sensitive   = true
+}
+
+output "network_service_account_name" {
+  description = "The name of the service account for network administration"
+  value       = google_service_account.network_admin.display_name
+  sensitive   = true
+}
