@@ -12,16 +12,15 @@ output "region" {
 output "static_ip_details" {
   description = "Map of static IP names to their complete details"
   value = {
-    for i, ip in google_compute_address.static_ip :
-    ip.name => {
-      fqdn        = "${var.subdomains[i].name}.${local.domain_base}"
+    for subdomain_name, ip in google_compute_global_address.static_ip :
+    subdomain_name => {
+      fqdn        = "${subdomain_name}.${local.domain_base}"
       ip_address  = ip.address
       description = ip.description
       self_link   = ip.self_link
-      subdomain   = var.subdomains[i].name
-      https_url   = "https://${var.subdomains[i].name}.${local.domain_base}/"
-      network_tier = var.subdomains[i].network_tier
-      address_type = var.subdomains[i].address_type
+      subdomain   = subdomain_name
+      https_url   = "https://${subdomain_name}.${local.domain_base}/"
+      address_type = ip.address_type
     }
   }
   sensitive = true
@@ -129,14 +128,14 @@ output "network_service_account_name" {
 #--------------------------------------------------------------
 
 output "iap_brand" {
-  description = "The IAP OAuth brand configuration"
-  value       = google_iap_brand.default
+  description = "The IAP OAuth brand configuration (null if not created)"
+  value       = null
   sensitive   = true
 }
 
 output "iap_client" {
-  description = "The IAP OAuth client configuration"
-  value       = google_iap_client.default
+  description = "The IAP OAuth client configuration (null if not created)"
+  value       = null
   sensitive   = true
 }
 
@@ -148,6 +147,6 @@ output "github_oauth_client_id" {
 
 output "iap_web_backend_service_configs" {
   description = "The IAP web backend service configurations"
-  value       = { for k, v in google_iap_web_backend_service_iam_member.member : k => v.web_backend_service_id }
+  value       = { for k, v in google_iap_web_backend_service_iam_member.member : k => v.web_backend_service }
   sensitive   = true
 }
