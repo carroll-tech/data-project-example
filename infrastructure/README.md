@@ -66,7 +66,7 @@ Instead of setting the Google Cloud credentials individually in each workspace, 
    - For the value, paste the JSON content of your Google service account key with newline characters removed:
      ```bash
      # Use this command to copy the credentials with newlines removed
-     cat terraform-key.json | tr -d '\n' ' '
+     cat key.json | tr -s '\n' ' '
      ```
    - Mark the variable as "Sensitive"
    - Click "Save variable"
@@ -167,7 +167,7 @@ gcloud iam service-accounts keys create terraform-key.json \
 1. Open the `terraform-key.json` file
 2. Use the following command to copy the contents with newlines removed:
    ```bash
-   cat terraform-key.json | tr -d '\n' ' '
+   cat key.json | tr -s '\n' ' '
    ```
 3. Use this formatted key in the Variable Set you created in the Terraform Cloud Setup section
 
