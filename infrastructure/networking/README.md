@@ -1,5 +1,35 @@
 # Networking Module
 
+## Table of Contents
+- [Overview](#overview)
+- [Purpose](#purpose)
+- [Architecture](#architecture)
+- [Network Resource Classification](#network-resource-classification)
+  - [Machine-Only Resources](#machine-only-resources)
+  - [User-Facing Resources](#user-facing-resources)
+- [Usage](#usage)
+- [Required Variables](#required-variables)
+  - [GitHub OAuth Setup](#github-oauth-setup)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
+- [Terraform Cloud Setup](#terraform-cloud-setup)
+  - [Setting Up Variables in Terraform Cloud](#setting-up-variables-in-terraform-cloud)
+- [GitHub Actions Integration](#github-actions-integration)
+  - [Workflow Structure](#workflow-structure)
+  - [Sensitive Output Handling](#sensitive-output-handling)
+- [Bootstrapping Process](#bootstrapping-process)
+  - [One-Time Setup Steps](#one-time-setup-steps)
+  - [Per-Application Setup Steps](#per-application-setup-steps)
+- [ArgoCD Integration](#argocd-integration)
+- [Hello World Application](#hello-world-application)
+- [Kubectl Access Setup](#kubectl-access-setup)
+  - [Setting Up Kubectl Access with GitHub Authentication](#setting-up-kubectl-access-with-github-authentication)
+  - [Access Levels Based on GitHub Repository Roles](#access-levels-based-on-github-repository-roles)
+- [Security Considerations](#security-considerations)
+- [License](#license)
+
+## Overview
+
 This module manages GCP networking resources for the data-project-example, including:
 
 - Private VPC for Kubernetes cluster
@@ -166,7 +196,34 @@ module "networking" {
 | workload_identity_provider_display_name | The display name of the Workload Identity Provider | Yes | Security through obscurity |
 | network_service_account_name | The name of the service account | Yes | Security through obscurity |
 
-## Terraform State Management
+## Required Variables
+
+This module requires several variables to be set before it can be applied. The most important required variables are:
+
+| Name | Description | How to Obtain |
+|------|-------------|--------------|
+| `github_oauth.client_id` | GitHub OAuth client ID for IAP authentication | See [GitHub OAuth Setup](#github-oauth-setup) below |
+| `github_oauth.client_secret` | GitHub OAuth client secret for IAP authentication | See [GitHub OAuth Setup](#github-oauth-setup) below |
+| `project` | GCP project ID to deploy resources within | From your Google Cloud Console |
+| `github_username` | GitHub username that owns the repository | Your GitHub username |
+
+### GitHub OAuth Setup
+
+To obtain the GitHub OAuth credentials needed for IAP authentication:
+
+1. Go to your GitHub account → Settings → Developer settings → OAuth Apps
+2. Click "New OAuth App"
+3. Fill in the following details:
+   - **Application name**: `data-project-example`
+   - **Homepage URL**: `https://data-project-example.net`
+   - **Authorization callback URL**: `https://iap.googleapis.com/v1/oauth/clientIds/YOUR_CLIENT_ID:handleRedirect`
+     - Note: You'll need to update this URL after creating the OAuth app and getting the client ID
+4. Click "Register application"
+5. You'll receive a Client ID immediately
+6. Click "Generate a new client secret" to get your Client Secret
+7. Save both the Client ID and Client Secret for use in Terraform Cloud
+
+## Terraform Cloud Setup
 
 This module uses Terraform Cloud for state management. The state is stored in the `data-project-example-networking` workspace within your personal Terraform Cloud account, as configured in `terraform.tf`:
 
@@ -187,6 +244,34 @@ This ensures:
 - State locking to prevent concurrent modifications
 - Version history of infrastructure changes
 - Ability to share with collaborators if needed
+
+### Setting Up Variables in Terraform Cloud
+
+Before running `terraform plan` or `terraform apply`, you need to set up the required variables in Terraform Cloud:
+
+1. Log in to [Terraform Cloud](https://app.terraform.io/)
+2. Navigate to your organization → `data-project-example-networking` workspace
+3. Go to "Variables" tab
+4. Add the following variables:
+
+| Key | Category | Sensitive | Description |
+|-----|----------|-----------|-------------|
+| `github_oauth.client_id` | Terraform | Yes | GitHub OAuth client ID from the setup above |
+| `github_oauth.client_secret` | Terraform | Yes | GitHub OAuth client secret from the setup above |
+| `project` | Terraform | No | Your GCP project ID |
+| `github_username` | Terraform | No | Your GitHub username |
+
+For complex variable types like `github_oauth`, you'll need to use HCL format:
+
+```hcl
+github_oauth = {
+  client_id     = "your-github-oauth-client-id"
+  client_secret = "your-github-oauth-client-secret"
+}
+```
+
+5. Save the variables
+6. Now you can run `terraform plan` and `terraform apply` from your local machine, and Terraform Cloud will use these variables
 
 ## GitHub Actions Integration
 
@@ -230,7 +315,12 @@ workload_identity_provider = <sensitive>
 
 ### One-Time Setup Steps
 
-1. **Initial Deployment of Networking Infrastructure**:
+1. **Set Up Terraform Cloud Variables**:
+   - Log in to [Terraform Cloud](https://app.terraform.io/)
+   - Navigate to your organization → `data-project-example-networking` workspace
+   - Set up the required variables as described in [Setting Up Variables in Terraform Cloud](#setting-up-variables-in-terraform-cloud)
+
+2. **Initial Deployment of Networking Infrastructure**:
    ```bash
    # Authenticate with your personal account
    gcloud auth application-default login
