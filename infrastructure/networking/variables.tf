@@ -10,6 +10,29 @@ locals {
 }
 
 #--------------------------------------------------------------
+# GitHub Authentication Variables
+#--------------------------------------------------------------
+
+variable "github_oauth" {
+  description = "GitHub OAuth configuration for IAP authentication"
+  type = object({
+    client_id     = string
+    client_secret = string
+  })
+  sensitive = true
+}
+
+variable "github_rbac" {
+  description = "GitHub RBAC configuration mapping repository roles to application access"
+  type = object({
+    read_role_bindings  = optional(list(string), ["roles/iap.httpsResourceAccessor"])
+    write_role_bindings = optional(list(string), ["roles/iap.httpsResourceAccessor", "roles/container.developer"])
+    admin_role_bindings = optional(list(string), ["roles/iap.httpsResourceAccessor", "roles/container.admin"])
+  })
+  default = {}
+}
+
+#--------------------------------------------------------------
 # Workload Identity Federation Variables
 #--------------------------------------------------------------
 
@@ -49,12 +72,23 @@ variable "subdomains" {
   type = list(object({
     name         = string
     network_tier = optional(string, "PREMIUM")
-    address_type = optional(string, "INTERNAL")
+    address_type = optional(string, "EXTERNAL")
     description  = optional(string, "")
+    iap_enabled  = optional(bool, true)
+    github_access_level = optional(string, "READ") # READ, WRITE, or ADMIN
   }))
-  default = [{
-    name = "cd"
-  }]
+  default = [
+    {
+      name = "root",
+      address_type = "EXTERNAL",
+      github_access_level = "READ"
+    },
+    {
+      name = "cd",
+      address_type = "EXTERNAL",
+      github_access_level = "WRITE"
+    }
+  ]
 }
 
 variable "enable_dns" {
@@ -116,7 +150,19 @@ variable "firewall_rules" {
     allow_internal = optional(bool, true)
     allow_health_checks = optional(bool, true)
     allow_api_server = optional(bool, true)
+    allow_iap = optional(bool, true)
     api_server_cidr = optional(string, "0.0.0.0/0")
+  })
+  default = {}
+}
+
+# IAP Configuration
+variable "iap_settings" {
+  description = "Identity-Aware Proxy settings for application access"
+  type = object({
+    oauth_brand_name = optional(string, "data-project-example")
+    support_email = optional(string)
+    application_title = optional(string, "Data Project Example")
   })
   default = {}
 }

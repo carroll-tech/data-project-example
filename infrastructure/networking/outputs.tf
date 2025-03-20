@@ -123,3 +123,31 @@ output "network_service_account_name" {
   value       = google_service_account.network_admin.display_name
   sensitive   = true
 }
+
+#--------------------------------------------------------------
+# IAP and OAuth Outputs
+#--------------------------------------------------------------
+
+output "iap_brand" {
+  description = "The IAP OAuth brand configuration"
+  value       = google_iap_brand.default
+  sensitive   = true
+}
+
+output "iap_client" {
+  description = "The IAP OAuth client configuration"
+  value       = google_iap_client.default
+  sensitive   = true
+}
+
+output "github_oauth_client_id" {
+  description = "The GitHub OAuth client ID for IAP authentication"
+  value       = var.github_oauth.client_id
+  sensitive   = true
+}
+
+output "iap_web_backend_service_configs" {
+  description = "The IAP web backend service configurations"
+  value       = { for k, v in google_iap_web_backend_service_iam_member.member : k => v.web_backend_service_id }
+  sensitive   = true
+}

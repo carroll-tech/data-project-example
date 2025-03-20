@@ -139,3 +139,18 @@ resource "google_compute_firewall" "allow_api_server" {
   source_ranges = [var.firewall_rules.api_server_cidr]
   description   = "Allow access to the Kubernetes API server"
 }
+
+resource "google_compute_firewall" "allow_iap" {
+  count   = var.firewall_rules.allow_iap == true ? 1 : 0
+  name    = "${var.vpc_name}-allow-iap"
+  network = google_compute_network.vpc.name
+  
+  allow {
+    protocol = "tcp"
+    ports    = ["22", "80", "443", "8080"]
+  }
+  
+  # IAP's IP range
+  source_ranges = ["35.235.240.0/20"]
+  description   = "Allow traffic from Identity-Aware Proxy"
+}
