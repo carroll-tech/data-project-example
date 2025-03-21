@@ -12,7 +12,7 @@ locals {
 # IAP OAuth client for GitHub authentication
 resource "google_iap_client" "default" {
   count        = local.enable_iap ? 1 : 0
-  display_name = "GitHub OAuth Client"
+  display_name = "Data Project Example"
   brand        = var.existing_iap_brand
 }
 
@@ -108,13 +108,16 @@ resource "google_compute_url_map" "main_url_map" {
   }
 }
 
-# Single SSL certificate for all domains
+# Single SSL certificate for all explicit domains
+# Note: Google-managed SSL certificates do not support wildcard domains (*.example.com)
+# Each subdomain that needs SSL must be explicitly added to the domains list
 resource "google_compute_managed_ssl_certificate" "main_ssl_cert" {
   name     = "${var.project}-main-cert"
   project  = var.project
   
   managed {
-    domains = local.domain_names
+    # Using distinct to prevent duplicate domains which cause deployment errors
+    domains = distinct(local.domain_names)
   }
 }
 
