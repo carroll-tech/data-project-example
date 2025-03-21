@@ -293,6 +293,41 @@ Access to applications is controlled based on GitHub repository roles:
 
 For more detailed configuration options, see the [GitHub Organization OAuth Setup](#github-organization-oauth-setup) section.
 
+### Manual IAP Brand Creation
+
+In some cases, you may encounter a permission error when Terraform attempts to create an IAP brand:
+
+```
+Error: Error creating Brand: googleapi: Error 403: The caller does not have permission
+```
+
+This occurs because creating IAP brands requires specific permissions that are often restricted to user accounts rather than service accounts. To resolve this issue:
+
+1. **Create the IAP Brand Manually**:
+   - Go to the Google Cloud Console: https://console.cloud.google.com/
+   - Navigate to **Security > Identity-Aware Proxy**
+   - Select your project
+   - You'll be prompted to configure the OAuth consent screen:
+     - **Application name**: "Data Project Example" (or your preferred name)
+     - **Support email**: Your email address
+     - **Application homepage**: Optional, can be left blank
+   - Click **Save** to create the brand
+
+2. **Get the Brand Name**:
+   - After creating the brand, look at the URL in your browser
+   - The URL will contain something like `brand=brands%2FBRAND_ID`
+   - The full brand name will be in the format `projects/PROJECT_NUMBER/brands/BRAND_ID`
+   - Alternatively, use the gcloud CLI:
+     ```bash
+     gcloud iap oauth-brands list --project=YOUR_PROJECT_ID
+     ```
+
+3. **Update Terraform Configuration**:
+   - Set the `existing_iap_brand` variable with the brand name you obtained
+   - This variable is required and must be in the format `projects/PROJECT_NUMBER/brands/BRAND_ID`
+
+This approach allows Terraform to use the manually created brand instead of attempting to create a new one.
+
 ## Terraform Cloud Setup
 
 This module uses Terraform Cloud for state management. The state is stored in the `data-project-example-networking` workspace within your personal Terraform Cloud account, as configured in `terraform.tf`:

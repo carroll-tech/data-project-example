@@ -65,18 +65,41 @@ Ensure the IAP API is enabled:
 gcloud services enable iap.googleapis.com --project=data-project-example
 ```
 
-### Configure OAuth Consent Screen
+### Manual IAP Brand Creation
 
-1. Go to Google Cloud Console → APIs & Services → OAuth consent screen
-2. Select "Internal" for the User Type (since the project is part of an organization)
-3. Fill in the required information:
-   - App name: "Data Project Example"
-   - User support email: Your email address
-   - Developer contact information: Your email address
-4. Add the necessary scopes:
-   - `./auth/userinfo.email`
-   - `./auth/userinfo.profile`
-5. Add test users if needed for testing
+1. **Create the IAP Brand in Google Cloud Console**:
+   - Go to Google Cloud Console → Security → Identity-Aware Proxy
+   - Select your project
+   - You'll be prompted to configure the OAuth consent screen:
+     - Select "Internal" for the User Type (since the project is part of an organization)
+     - Fill in the required information:
+       - App name: "Data Project Example"
+       - User support email: Your email address
+       - Developer contact information: Your email address
+     - Add the necessary scopes:
+       - `./auth/userinfo.email`
+       - `./auth/userinfo.profile`
+     - Click **Save** to create the brand
+
+2. **Get the Brand Name**:
+   - After creating the brand, look at the URL in your browser
+   - The URL will contain something like `brand=brands%2FBRAND_ID`
+   - The full brand name will be in the format `projects/PROJECT_NUMBER/brands/BRAND_ID`
+   - Alternatively, use the gcloud CLI:
+     ```bash
+     gcloud iap oauth-brands list --project=YOUR_PROJECT_ID
+     ```
+
+3. **Set the Brand Name in Terraform**:
+   - Add the brand name to your Terraform Cloud variables:
+     - Key: `existing_iap_brand`
+     - Value: The brand name in the format `projects/PROJECT_NUMBER/brands/BRAND_ID`
+     - Category: Terraform
+     - Sensitive: No
+
+4. **Run Terraform Apply Again**:
+   - With the brand name set, run `terraform apply` again
+   - Terraform will now use the existing brand instead of trying to create a new one
 
 ### Configure IAP in Google Cloud Console
 
@@ -86,6 +109,30 @@ After applying the Terraform changes:
 2. Verify that IAP is enabled for the backend services
 3. Check that the OAuth client is properly configured
 4. Test access with different organization members
+
+### Troubleshooting IAP Brand Issues
+
+If you encounter issues with the IAP brand:
+
+1. **Verify Brand Format**:
+   - Ensure the brand name is in the correct format: `projects/PROJECT_NUMBER/brands/BRAND_ID`
+   - The PROJECT_NUMBER is numeric and different from your project ID
+
+2. **Check Permissions**:
+   - Ensure your user account has the `roles/iap.admin` role
+   - This is required to view and manage IAP brands
+
+3. **Verify Brand Existence**:
+   - Use the gcloud CLI to list existing brands:
+     ```bash
+     gcloud iap oauth-brands list --project=YOUR_PROJECT_ID
+     ```
+   - If no brands are listed, you may need to create one manually
+
+4. **OAuth Client Creation**:
+   - If the brand exists but you're having issues with the OAuth client:
+     - You can create the OAuth client manually in the Google Cloud Console
+     - Then update the `github_oauth_client_id` and `github_oauth_client_secret` variables
 
 ## Required Permissions
 

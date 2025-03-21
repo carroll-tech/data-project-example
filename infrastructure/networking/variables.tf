@@ -189,3 +189,8 @@ variable "iap_settings" {
   })
   default = {}
 }
+
+variable "existing_iap_brand" {
+  description = "Required. The name of an existing IAP brand created manually in the Google Cloud Console (format: projects/PROJECT_NUMBER/brands/BRAND_ID)"
+  type        = string
+}

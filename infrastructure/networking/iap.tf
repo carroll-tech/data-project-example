@@ -6,18 +6,13 @@ locals {
   enable_iap = true
 }
 
-# IAP Brand and Client resources for organization-based authentication
-resource "google_iap_brand" "default" {
-  count            = local.enable_iap ? 1 : 0
-  support_email     = local.support_email
-  application_title = var.iap_settings.application_title
-  project           = data.google_project.current.project_id
-}
+# Note: IAP Brand is created manually in the Google Cloud Console
+# The brand name is provided via the existing_iap_brand variable
 
 resource "google_iap_client" "default" {
-  count        = local.enable_iap && length(google_iap_brand.default) > 0 ? 1 : 0
+  count        = local.enable_iap ? 1 : 0
   display_name = "GitHub OAuth Client"
-  brand        = google_iap_brand.default[0].name
+  brand        = var.existing_iap_brand
 }
 
 # IAP Web Backend Service IAM Member for each subdomain
