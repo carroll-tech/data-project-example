@@ -1,34 +1,22 @@
-# IAP (Identity-Aware Proxy) Configuration for GitHub Authentication
+# IAP (Identity-Aware Proxy) Configuration with GitHub Authentication
+# This file implements a single entry point with IAP protection
 
-# IAP Configuration
 locals {
-  # Enable IAP now that the project is part of a GCP organization
+  # Enable IAP for all backend services
   enable_iap = true
 }
 
 # Note: IAP Brand is created manually in the Google Cloud Console
 # The brand name is provided via the existing_iap_brand variable
 
+# IAP OAuth client for GitHub authentication
 resource "google_iap_client" "default" {
   count        = local.enable_iap ? 1 : 0
   display_name = "GitHub OAuth Client"
   brand        = var.existing_iap_brand
 }
 
-# IAP Web Backend Service IAM Member for each subdomain
-resource "google_iap_web_backend_service_iam_member" "member" {
-  for_each = {
-    for i, subdomain in var.subdomains :
-    subdomain.name => subdomain if subdomain.iap_enabled
-  }
-  
-  project = var.project
-  web_backend_service = google_compute_backend_service.backend_service[each.key].name
-  role = "roles/iap.httpsResourceAccessor"
-  member = local.current_user_email_with_prefix
-}
-
-# Backend service for each subdomain
+# Backend services with IAP enabled for each application
 resource "google_compute_backend_service" "backend_service" {
   for_each = {
     for i, subdomain in var.subdomains :
@@ -43,6 +31,7 @@ resource "google_compute_backend_service" "backend_service" {
   
   health_checks = [google_compute_health_check.health_check[each.key].id]
   
+  # Enable IAP with GitHub OAuth credentials
   iap {
     oauth2_client_id     = var.github_oauth_client_id
     oauth2_client_secret = var.github_oauth_client_secret
@@ -50,7 +39,25 @@ resource "google_compute_backend_service" "backend_service" {
   }
 }
 
-# Health check for each backend service
+# IAP access permissions based on GitHub roles
+resource "google_iap_web_backend_service_iam_binding" "backend_access" {
+  for_each = {
+    for i, subdomain in var.subdomains :
+    subdomain.name => subdomain if subdomain.iap_enabled
+  }
+  
+  project = var.project
+  web_backend_service = google_compute_backend_service.backend_service[each.key].name
+  role = "roles/iap.httpsResourceAccessor"
+  
+  # Map GitHub roles to IAP access permissions
+  members = concat(
+    [local.current_user_email_with_prefix],
+    lookup(var.github_org_teams, each.value.github_access_level, [])
+  )
+}
+
+# Health checks for backend services
 resource "google_compute_health_check" "health_check" {
   for_each = {
     for i, subdomain in var.subdomains :
@@ -68,58 +75,62 @@ resource "google_compute_health_check" "health_check" {
   }
 }
 
-# URL map for each subdomain
-resource "google_compute_url_map" "url_map" {
-  for_each = {
-    for i, subdomain in var.subdomains :
-    subdomain.name => subdomain if subdomain.iap_enabled
-  }
-  
-  name            = "${var.project}-${each.key}-url-map"
+# Single URL map for all applications with host-based routing
+resource "google_compute_url_map" "main_url_map" {
+  name            = "${var.project}-main-url-map"
   project         = var.project
-  default_service = google_compute_backend_service.backend_service[each.key].id
-}
-
-# HTTPS target proxy for each subdomain
-resource "google_compute_target_https_proxy" "https_proxy" {
-  for_each = {
-    for i, subdomain in var.subdomains :
-    subdomain.name => subdomain if subdomain.iap_enabled
+  default_service = google_compute_backend_service.backend_service["root"].id
+  
+  # Host rules for subdomains (host-based routing)
+  dynamic "host_rule" {
+    for_each = {
+      for i, subdomain in var.subdomains :
+      subdomain.name => subdomain if subdomain.iap_enabled && subdomain.name != "root"
+    }
+    
+    content {
+      hosts        = ["${host_rule.key}.${local.domain_base}"]
+      path_matcher = host_rule.key
+    }
   }
   
-  name             = "${var.project}-${each.key}-https-proxy"
-  project          = var.project
-  url_map          = google_compute_url_map.url_map[each.key].id
-  ssl_certificates = [google_compute_managed_ssl_certificate.ssl_cert[each.key].id]
+  # Path matchers for each subdomain
+  dynamic "path_matcher" {
+    for_each = {
+      for i, subdomain in var.subdomains :
+      subdomain.name => subdomain if subdomain.iap_enabled && subdomain.name != "root"
+    }
+    
+    content {
+      name            = path_matcher.key
+      default_service = google_compute_backend_service.backend_service[path_matcher.key].id
+    }
+  }
 }
 
-# SSL certificate for each subdomain
-resource "google_compute_managed_ssl_certificate" "ssl_cert" {
-  for_each = {
-    for i, subdomain in var.subdomains :
-    subdomain.name => subdomain if subdomain.iap_enabled
-  }
-  
-  name     = "${var.project}-${each.key}-cert"
+# Single SSL certificate for all domains
+resource "google_compute_managed_ssl_certificate" "main_ssl_cert" {
+  name     = "${var.project}-main-cert"
   project  = var.project
   
   managed {
-    domains = [
-      each.key == "root" ? local.domain_base : "${each.key}.${local.domain_base}"
-    ]
+    domains = local.domain_names
   }
 }
 
-# Global forwarding rule for each subdomain
-resource "google_compute_global_forwarding_rule" "forwarding_rule" {
-  for_each = {
-    for i, subdomain in var.subdomains :
-    subdomain.name => subdomain if subdomain.iap_enabled && subdomain.address_type == "EXTERNAL"
-  }
-  
-  name       = "${var.project}-${each.key}-forwarding-rule"
+# Single HTTPS target proxy with SSL certificate
+resource "google_compute_target_https_proxy" "main_https_proxy" {
+  name             = "${var.project}-main-https-proxy"
+  project          = var.project
+  url_map          = google_compute_url_map.main_url_map.id
+  ssl_certificates = [google_compute_managed_ssl_certificate.main_ssl_cert.id]
+}
+
+# Single global forwarding rule directing traffic to the HTTPS proxy
+resource "google_compute_global_forwarding_rule" "main_forwarding_rule" {
+  name       = "${var.project}-main-forwarding-rule"
   project    = var.project
-  target     = google_compute_target_https_proxy.https_proxy[each.key].id
+  target     = google_compute_target_https_proxy.main_https_proxy.id
   port_range = "443"
-  ip_address = google_compute_global_address.static_ip[each.key].address
+  ip_address = google_compute_global_address.main_static_ip.address
 }

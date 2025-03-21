@@ -31,6 +31,11 @@ The following APIs need to be enabled in your project:
    gcloud services enable iamcredentials.googleapis.com --project=data-project-example
    ```
 
+6. **Cloud DNS API (dns.googleapis.com)**:
+   ```bash
+   gcloud services enable dns.googleapis.com --project=data-project-example
+   ```
+
 ### Enabling All Required APIs at Once
 
 You can enable all required APIs with a single command:
@@ -42,6 +47,7 @@ gcloud services enable \
   compute.googleapis.com \
   cloudresourcemanager.googleapis.com \
   iamcredentials.googleapis.com \
+  dns.googleapis.com \
   --project=data-project-example
 ```
 
@@ -50,7 +56,7 @@ gcloud services enable \
 To verify that the APIs have been enabled:
 
 ```bash
-gcloud services list --enabled --filter="name:iap.googleapis.com OR name:iam.googleapis.com OR name:compute.googleapis.com OR name:cloudresourcemanager.googleapis.com OR name:iamcredentials.googleapis.com" --project=data-project-example
+gcloud services list --enabled --filter="name:iap.googleapis.com OR name:iam.googleapis.com OR name:compute.googleapis.com OR name:cloudresourcemanager.googleapis.com OR name:iamcredentials.googleapis.com OR name:dns.googleapis.com" --project=data-project-example
 ```
 
 ## Organization IAP Setup
@@ -152,7 +158,7 @@ The account running Terraform needs the following permissions:
 5. `roles/compute.securityAdmin` - To create and manage firewall rules
 6. `roles/compute.loadBalancerAdmin` - To manage load balancers, backend services, and health checks
 7. `roles/iap.admin` - To configure Identity-Aware Proxy
-8. `roles/dns.admin` - To manage DNS records if needed
+8. `roles/dns.admin` - To manage DNS records
 9. `roles/serviceusage.serviceUsageAdmin` - To enable required APIs
 
 You can grant these roles to your account with:
@@ -221,15 +227,67 @@ done
 
 Replace `TERRAFORM_CLOUD_SA_EMAIL` with the email of the service account used by Terraform Cloud.
 
-## SSL Certificate Limitations
+## Single Entry Point Architecture with Cloud DNS
 
-Google-managed SSL certificates have the following limitations:
+The refactored networking module uses a single entry point with Cloud DNS for all domains and subdomains:
 
-1. **No Wildcard Support**: Google-managed SSL certificates do not support wildcard domains (e.g., `*.example.com`). Each subdomain needs its own certificate.
+### SSL Certificate with Multiple Domains
 
-2. **Domain Verification**: You need to verify ownership of the domain before creating certificates.
+The architecture uses a single Google-managed SSL certificate that covers:
+- The root domain (data-project-example.net)
+- Explicit subdomains (cd.data-project-example.net)
+- Wildcard domain (*.data-project-example.net) if enabled
 
-3. **Provisioning Time**: It can take up to 24 hours for a certificate to be fully provisioned.
+Note that Google-managed SSL certificates have some limitations:
+- Provisioning Time: It can take up to 24 hours for a certificate to be fully provisioned
+- Maximum of 100 domains per certificate
+- For SAN certificates (not wildcard), each subdomain must be explicitly listed
+
+### Cloud DNS Configuration
+
+Cloud DNS fully supports wildcard records, making it ideal for our single entry point architecture:
+
+1. **DNS Zone Creation**: 
+   - The module automatically creates a Cloud DNS zone for your domain
+   - The zone handles all DNS records for your domain and subdomains
+
+2. **Record Types**:
+   - Root A Record: Points `data-project-example.net` to the single IP
+   - Subdomain A Records: Points specific subdomains to the same IP
+   - Wildcard A Record: Points `*.data-project-example.net` to the same IP
+
+3. **Wildcard Support in Cloud DNS**:
+   - Cloud DNS fully supports wildcard records (*.example.com)
+   - This allows any subdomain to automatically resolve to your single IP
+   - Specific subdomains can override the wildcard behavior with their own records
+   - You can even create nested wildcards (*.subdomain.example.com)
+
+4. **Retrieving DNS Information**:
+   ```bash
+   # Get the main IP address
+   MAIN_IP=$(terraform output -raw main_ip_address)
+   
+   # Get DNS information including nameservers
+   DNS_INFO=$(terraform output -json cloud_dns)
+   ```
+
+5. **Domain Registrar Configuration**:
+   - After creating the Cloud DNS zone, you need to update your domain registrar to use Google Cloud DNS nameservers
+   - Get the nameservers from the terraform output:
+     ```bash
+     echo $DNS_INFO | jq -r '.name_servers[]'
+     ```
+   - Go to your domain registrar (e.g., GoDaddy, Namecheap, etc.)
+   - Update the nameservers to the ones provided by Cloud DNS
+   - Wait for propagation (can take up to 48 hours, but usually much faster)
+
+6. **Verifying DNS Setup**:
+   ```bash
+   # Check if DNS records are propagated
+   dig data-project-example.net
+   dig cd.data-project-example.net
+   dig random-subdomain.data-project-example.net  # Should resolve if wildcard is enabled
+   ```
 
 ## GitHub OAuth Setup
 
@@ -243,13 +301,13 @@ See the main README.md for detailed instructions on GitHub OAuth setup.
 
 ## Registering Your Domain with Google Search Console
 
-Registering your domain with Google Search Console is important for ensuring your applications are properly indexed by search engines. This section provides instructions for registering your domain when using Squarespace for DNS management.
+When using Cloud DNS, registering with Google Search Console is simpler:
 
 ### Prerequisites
 
 - A Google account
-- Your domain (data-project-example.net) properly configured in Squarespace
-- Admin access to your Squarespace account
+- Your domain properly configured in Cloud DNS
+- DNS verification completed (nameservers updated at registrar)
 
 ### Step 1: Access Google Search Console
 
@@ -260,113 +318,33 @@ Registering your domain with Google Search Console is important for ensuring you
 ### Step 2: Choose Property Type
 
 1. Select "Domain" as the property type (recommended)
-   - This covers all subdomains (www, cd, etc.) and protocols (http, https)
-   - Alternatively, you can select "URL prefix" for specific subdomains
-
+   - This covers all subdomains and protocols (http, https)
 2. Enter your domain: `data-project-example.net`
 
-### Step 3: Verify Domain Ownership via Squarespace DNS
+### Step 3: Verify Domain Ownership via DNS Provider
+
+Since you're using Cloud DNS (a Google service), verification is simplified:
 
 1. Google will provide a TXT record for verification
-2. Log in to your Squarespace account
-3. Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
-4. Add a new DNS record with the following details:
-   - Record type: TXT
-   - Host: @ (for the root domain)
-   - Value: [The verification string provided by Google]
-   - TTL: Automatic (or 3600 seconds)
-5. Save the DNS record
+2. If you're in the same Google account that manages your Cloud DNS:
+   - You may see an option to verify automatically
+   - Click "Verify" if available
 
-6. Return to Google Search Console and click "Verify"
-   - Note: DNS propagation can take up to 48 hours, but typically completes within a few hours
-   - If verification fails, wait and try again later
-
-### Step 4: Verify Subdomains (Optional)
-
-For our setup with multiple subdomains (cd.data-project-example.net, etc.):
-
-1. The domain-level verification automatically covers all subdomains
-2. No additional verification is needed for subdomains when using domain property type
-3. If you used URL prefix verification instead, you'll need to verify each subdomain separately
-
-### Step 5: Submit Sitemaps
-
-1. Create a sitemap.xml file for your applications
-   - For the root domain (data-project-example.net)
-   - For the ArgoCD subdomain (cd.data-project-example.net)
+3. If manual verification is needed:
+   - In Cloud Console, go to Network Services → Cloud DNS
+   - Select your domain's DNS zone
+   - Add a new record set:
+     - DNS Name: @ (for root domain)
+     - Resource Record Type: TXT
+     - TTL: 3600 (or default)
+     - Data: [Verification string provided by Google]
+   - Click "Create"
    
-2. In Google Search Console:
-   - Go to "Sitemaps" in the left sidebar
-   - Enter the URL of your sitemap (e.g., `https://data-project-example.net/sitemap.xml`)
-   - Click "Submit"
+4. Return to Google Search Console and click "Verify"
+   - Verification should be quicker with Cloud DNS than with third-party DNS providers
 
-3. Monitor the status of your sitemap submission
-   - Check for any errors or warnings
-   - Verify that your pages are being indexed
+### Step 4: Submit Sitemaps and Monitor
 
-### Step 6: Configure Additional Settings
-
-1. **URL Inspection**: Test individual URLs to see how Google views them
-2. **Coverage Report**: Monitor indexing status and errors
-3. **Mobile Usability**: Check for mobile-friendly issues
-4. **Performance**: Track search analytics (clicks, impressions, CTR)
-
-### Integration with Our Infrastructure
-
-Since our networking module uses Squarespace for domain management:
-
-1. Retrieve the static IPs from Terraform outputs:
-   ```bash
-   # Get the static IP for the root domain
-   ROOT_IP=$(terraform output -raw static_ip_details | jq -r '.root.ip_address')
-   
-   # Get the static IP for the cd subdomain
-   CD_IP=$(terraform output -raw static_ip_details | jq -r '.cd.ip_address')
-   ```
-
-2. Ensure your Squarespace DNS configuration includes:
-   - A records for your domains pointing to the correct IPs
-   - The TXT record for Google Search Console verification
-   - Any other required DNS records (MX, CNAME, etc.)
-
-3. For wildcard subdomains (*.data-project-example.net):
-   - The domain-level verification covers all subdomains
-   - Ensure your sitemap includes all relevant subdomain URLs
-   - Note: Squarespace may have limitations with wildcard subdomains, so you may need to add each subdomain individually
-
-### Squarespace-Specific Considerations
-
-1. **DNS Management Limitations**:
-   - Squarespace has a simplified DNS interface with some limitations
-   - Some advanced record types may require contacting Squarespace support
-   - Changes may take longer to propagate compared to other DNS providers
-
-2. **Custom Domain Setup**:
-   - If you're using Squarespace for hosting the main website:
-     - Ensure the domain is properly connected to your Squarespace site
-     - Use "Custom Domain" in Squarespace settings rather than "Third-Party Domain"
-   - If you're only using Squarespace for DNS management:
-     - Use the "Advanced DNS Settings" to configure all records
-
-3. **HTTPS Configuration**:
-   - Squarespace provides free SSL certificates for domains connected to Squarespace sites
-   - For subdomains pointing to external services (like our GCP resources), you'll need to ensure SSL is configured on the target service
-
-### Troubleshooting
-
-1. **Verification Failures**:
-   - Confirm the TXT record was added correctly in Squarespace DNS
-   - Check for typos in the verification string
-   - Wait for DNS propagation (up to 48 hours)
-   - Use [DNS Checker](https://dnschecker.org/) to verify TXT record propagation
-
-2. **Indexing Issues**:
-   - Ensure your applications are publicly accessible
-   - Check for robots.txt files that might block Google's crawlers
-   - Verify that your IAP settings don't prevent Google from accessing your site
-
-3. **Squarespace-Specific Issues**:
-   - If you encounter limitations with Squarespace's DNS management:
-     - Consider using Squarespace's advanced DNS settings
-     - Contact Squarespace support for assistance with complex DNS configurations
-     - As a last resort, consider transferring DNS management to a more flexible provider
+1. Create and submit sitemaps for your applications
+2. Set up performance monitoring
+3. Configure any additional Search Console settings

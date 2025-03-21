@@ -109,9 +109,21 @@ variable "subdomains" {
 }
 
 variable "enable_dns" {
-  description = "Whether to create DNS records for the static IPs (currently disabled due to permission issues)"
+  description = "Whether to create DNS records using Cloud DNS"
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "enable_wildcard_dns" {
+  description = "Whether to create a wildcard DNS record (*.domain.com) pointing to the main IP"
+  type        = bool
+  default     = true
+}
+
+variable "enable_wildcard_ssl" {
+  description = "Whether to include a wildcard domain (*.domain.com) in the SSL certificate"
+  type        = bool
+  default     = true
 }
 
 variable "enable_iap" {

@@ -8,20 +8,30 @@ output "region" {
   value       = var.region
 }
 
-# Comprehensive map of static IP details
-output "static_ip_details" {
-  description = "Map of static IP names to their complete details"
+# Main IP and domain information
+output "main_ip_address" {
+  description = "The main entry point IP address for all domains"
+  value       = google_compute_global_address.main_static_ip.address
+  sensitive   = true
+}
+
+# Domain information with single IP structure
+output "domain_details" {
+  description = "Domain and subdomain details with the single entry point"
   value = {
-    for subdomain_name, ip in google_compute_global_address.static_ip :
-    subdomain_name => {
-      fqdn        = "${subdomain_name}.${local.domain_base}"
-      ip_address  = ip.address
-      description = ip.description
-      self_link   = ip.self_link
-      subdomain   = subdomain_name
-      https_url   = "https://${subdomain_name}.${local.domain_base}/"
-      address_type = ip.address_type
+    main_ip = {
+      ip_address = google_compute_global_address.main_static_ip.address
+      self_link = google_compute_global_address.main_static_ip.self_link
     }
+    domains = {
+      for subdomain in var.subdomains :
+      subdomain.name => {
+        fqdn = subdomain.name == "root" ? local.domain_base : "${subdomain.name}.${local.domain_base}"
+        https_url = "https://${subdomain.name == "root" ? "" : "${subdomain.name}."}${local.domain_base}/"
+        github_access_level = subdomain.github_access_level
+      }
+    }
+    wildcard_enabled = var.enable_wildcard_dns
   }
   sensitive = true
 }
@@ -29,6 +39,17 @@ output "static_ip_details" {
 output "subdomain_configs" {
   description = "The complete subdomain configurations used"
   value       = var.subdomains
+}
+
+# Certificate information
+output "ssl_certificate" {
+  description = "The main SSL certificate details"
+  value = {
+    name = google_compute_managed_ssl_certificate.main_ssl_cert.name
+    id = google_compute_managed_ssl_certificate.main_ssl_cert.id
+    domains = local.domain_names
+  }
+  sensitive = true
 }
 
 #--------------------------------------------------------------
@@ -127,15 +148,9 @@ output "network_service_account_name" {
 # IAP and OAuth Outputs
 #--------------------------------------------------------------
 
-output "iap_brand" {
-  description = "The IAP OAuth brand configuration (null if not created)"
-  value       = null
-  sensitive   = true
-}
-
-output "iap_client" {
-  description = "The IAP OAuth client configuration (null if not created)"
-  value       = null
+output "iap_oauth_client" {
+  description = "The IAP OAuth client configuration"
+  value       = local.enable_iap ? google_iap_client.default[0].client_id : null
   sensitive   = true
 }
 
@@ -147,6 +162,26 @@ output "github_oauth_client_id" {
 
 output "iap_web_backend_service_configs" {
   description = "The IAP web backend service configurations"
-  value       = { for k, v in google_iap_web_backend_service_iam_member.member : k => v.web_backend_service }
+  value       = { for k, v in google_iap_web_backend_service_iam_binding.backend_access : k => v.web_backend_service }
   sensitive   = true
+}
+
+output "url_map" {
+  description = "The main URL map for host-based routing"
+  value = {
+    name = google_compute_url_map.main_url_map.name
+    id = google_compute_url_map.main_url_map.id
+    default_service = google_compute_url_map.main_url_map.default_service
+  }
+  sensitive = true
+}
+
+output "cloud_dns" {
+  description = "Cloud DNS configuration details"
+  value = var.enable_dns ? {
+    zone_name = google_dns_managed_zone.domain_zone[0].name
+    dns_name = google_dns_managed_zone.domain_zone[0].dns_name
+    name_servers = google_dns_managed_zone.domain_zone[0].name_servers
+  } : null
+  sensitive = true
 }

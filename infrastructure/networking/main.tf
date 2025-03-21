@@ -4,28 +4,30 @@ locals {
   
   # Compute subnet regions if not specified
   subnet_regions = [for s in var.subnets : s.region != null ? s.region : var.region]
+  
+  # Build list of all domain names for SSL certificate
+  domain_names = concat(
+    # Root domain
+    [local.domain_base],
+    # Explicit subdomains
+    [for s in var.subdomains : "${s.name == "root" ? "" : "${s.name}."}${local.domain_base}"],
+    # Wildcard subdomain if enabled
+    var.enable_wildcard_ssl ? ["*.${local.domain_base}"] : []
+  )
 }
 
-# Create global static IPs for global forwarding rules
-resource "google_compute_global_address" "static_ip" {
-  for_each     = { for i, s in var.subdomains : s.name => s }
-  name         = "${var.project}-${each.key}"
-  address_type = each.value.address_type
-  description  = coalesce(
-    each.value.description,
-    "Global static IP for ${each.key}.${local.domain_base}"
-  )
+# Create a single global static IP for the entry point
+resource "google_compute_global_address" "main_static_ip" {
+  name         = "${var.project}-main-ip"
+  address_type = "EXTERNAL"
+  description  = "Global static IP for ${local.domain_base} and all subdomains"
   
   labels = merge(var.labels, {
-    subdomain = each.key
-    domain    = replace(local.domain_base, ".", "-")
+    domain = replace(local.domain_base, ".", "-")
   })
 }
 
-# Note: DNS zone and record creation is commented out due to permission issues
-# Uncomment and configure if you have the necessary DNS permissions
-/*
-# DNS A records for the static IPs
+# DNS zone and record creation using Cloud DNS
 resource "google_dns_managed_zone" "domain_zone" {
   count       = var.enable_dns ? 1 : 0
   name        = replace(local.domain_base, ".", "-")
@@ -33,16 +35,38 @@ resource "google_dns_managed_zone" "domain_zone" {
   description = "DNS zone for ${local.domain_base}"
 }
 
-resource "google_dns_record_set" "domain_records" {
-  count        = var.enable_dns ? length(var.subdomains) : 0
-  name         = "${var.subdomains[count.index].name}.${local.domain_base}."
+# Root domain A record
+resource "google_dns_record_set" "root_record" {
+  count        = var.enable_dns ? 1 : 0
+  name         = "${local.domain_base}."
   type         = "A"
   ttl          = 300
   managed_zone = google_dns_managed_zone.domain_zone[0].name
   
-  rrdatas = [google_compute_address.static_ip[count.index].address]
+  rrdatas = [google_compute_global_address.main_static_ip.address]
 }
-*/
+
+# Subdomain A records
+resource "google_dns_record_set" "subdomain_records" {
+  for_each     = var.enable_dns ? { for s in var.subdomains : s.name => s if s.name != "root" } : {}
+  name         = "${each.key}.${local.domain_base}."
+  type         = "A"
+  ttl          = 300
+  managed_zone = google_dns_managed_zone.domain_zone[0].name
+  
+  rrdatas = [google_compute_global_address.main_static_ip.address]
+}
+
+# Wildcard A record (if enabled)
+resource "google_dns_record_set" "wildcard_record" {
+  count        = var.enable_dns && var.enable_wildcard_dns ? 1 : 0
+  name         = "*.${local.domain_base}."
+  type         = "A"
+  ttl          = 300
+  managed_zone = google_dns_managed_zone.domain_zone[0].name
+  
+  rrdatas = [google_compute_global_address.main_static_ip.address]
+}
 
 #--------------------------------------------------------------
 # VPC and Subnet Resources for Kubernetes Cluster
