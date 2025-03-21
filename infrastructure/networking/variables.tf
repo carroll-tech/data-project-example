@@ -13,13 +13,16 @@ locals {
 # GitHub Authentication Variables
 #--------------------------------------------------------------
 
-variable "github_oauth" {
-  description = "GitHub OAuth configuration for IAP authentication"
-  type = object({
-    client_id     = string
-    client_secret = string
-  })
-  sensitive = true
+variable "github_oauth_client_id" {
+  description = "GitHub OAuth client ID for IAP authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_oauth_client_secret" {
+  description = "GitHub OAuth client secret for IAP authentication"
+  type        = string
+  sensitive   = true
 }
 
 variable "github_rbac" {
@@ -51,7 +54,6 @@ variable "github_username" {
 variable "project" {
   description = "GCP project to deploy resources within"
   type        = string
-  default     = "data-project-example"
 }
 
 variable "region" {

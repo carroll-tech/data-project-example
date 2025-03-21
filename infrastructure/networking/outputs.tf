@@ -141,7 +141,7 @@ output "iap_client" {
 
 output "github_oauth_client_id" {
   description = "The GitHub OAuth client ID for IAP authentication"
-  value       = var.github_oauth.client_id
+  value       = var.github_oauth_client_id
   sensitive   = true
 }
 

@@ -162,10 +162,13 @@ graph TD
 ### One-Time Setup Steps
 
 1. **Update Networking Module Configuration**:
-   - Modify `variables.tf` to support EXTERNAL IPs and GitHub authentication
+   - Modify `variables.tf` to support EXTERNAL IPs and GitHub organization authentication
    - Update `main.tf` to create the necessary static IPs
    - Create `iap.tf` and `oauth.tf` for authentication configuration
-   - Enhance `iam.tf` with role bindings for GitHub repository roles
+   - Enhance `iam.tf` with role bindings for GitHub organization teams
+   - Add support for team-based access control
+   - Configure organization-level permission mappings
+   - Add variables for organization settings
 
 2. **Deploy the Updated Networking Module**:
    ```bash
@@ -174,10 +177,13 @@ graph TD
    terraform apply
    ```
 
-3. **Set Up GitHub OAuth Application**:
-   - Create a new OAuth application in GitHub
+3. **Set Up GitHub Organization OAuth Application**:
+   - Create a new OAuth application in GitHub organization settings
    - Configure callback URLs for IAP authentication
    - Obtain client ID and secret
+   - Configure organization permissions and access
+   - Set appropriate permission scopes
+   - Consider domain verification for production deployments
 
 4. **Configure IAP with GitHub Authentication**:
    - Set up IAP in Google Cloud Console
@@ -238,15 +244,19 @@ ArgoCD will be deployed as a special case with the following considerations:
    - ArgoCD will have a dedicated static IP at `cd.data-project-example.net`
    - This IP will be EXTERNAL to allow user access
 
-2. **GitHub Authentication**:
+2. **GitHub Organization Authentication**:
    - ArgoCD will use GitHub OAuth for authentication
-   - Users with WRITE access to the repository will be able to access ArgoCD
+   - Team-based access can be configured
+   - Organization-wide policies can be applied
+   - SSO integration is available for enterprise accounts
 
 3. **RBAC Configuration**:
-   - Repository roles will be mapped to ArgoCD roles:
-     - READ: read-only access to applications
-     - WRITE: ability to sync applications
-     - ADMIN: full administrative access
+   - Team roles can be mapped to ArgoCD roles:
+     - READ: read-only access to applications (e.g., developer team)
+     - WRITE: ability to sync applications (e.g., devops team)
+     - ADMIN: full administrative access (e.g., platform team)
+   - Custom organization roles can be used for fine-grained access control
+   - SAML group mappings can be configured for enterprise GitHub accounts
 
 4. **Integration with Helm Applications**:
    - ArgoCD will manage Helm-deployed applications
@@ -259,28 +269,31 @@ The hello-world application defined in `infrastructure/charts/argo-cd/templates/
 
 1. **Deployed at Root Domain**:
    - Accessible at `data-project-example.net`
-   - Requires GitHub READ access to view
+   - Requires GitHub organization team membership with READ access
 
 2. **Managed by ArgoCD**:
    - Defined as an ArgoCD Application resource
    - Automatically synced from the GitHub repository
+   - Deployment approvals can be configured based on team membership
 
 3. **Secured with IAP**:
    - Protected by Identity-Aware Proxy
-   - Authenticated using GitHub OAuth
-   - Access controlled based on repository roles
+   - Authenticated using GitHub organization OAuth
+   - Access controlled based on organization team roles
+   - SSO integration available for enterprise GitHub accounts
 
 ## Code Changes
 
 The following files will need to be modified or created:
 
-1. `variables.tf` - Add variables for GitHub OAuth, IAP configuration, and role mapping
+1. `variables.tf` - Add variables for GitHub organization OAuth, IAP configuration, and team role mapping
 2. `main.tf` - Update static IP configuration to support EXTERNAL IPs
 3. `outputs.tf` - Add outputs for GitHub OAuth client ID, IAP settings, and static IP addresses
-4. `data.tf` - Add data sources for GitHub repository and user information
-5. `iam.tf` - Enhance with role bindings for GitHub repository roles
+4. `data.tf` - Add data sources for GitHub organization, teams, and membership information
+5. `iam.tf` - Enhance with role bindings for GitHub organization teams
 6. New file: `iap.tf` - Implement IAP configuration and backend services
-7. New file: `oauth.tf` - Implement GitHub OAuth client registration and configuration
+7. New file: `oauth.tf` - Implement GitHub organization OAuth client registration and configuration
+8. New file: `teams.tf` - Define mappings between GitHub organization teams and IAM roles
 
 ## Netlify DNS Configuration Instructions
 

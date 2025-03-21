@@ -53,8 +53,8 @@ resource "google_compute_backend_service" "backend_service" {
   health_checks = [google_compute_health_check.health_check[each.key].id]
   
   iap {
-    oauth2_client_id     = var.github_oauth.client_id
-    oauth2_client_secret = var.github_oauth.client_secret
+    oauth2_client_id     = var.github_oauth_client_id
+    oauth2_client_secret = var.github_oauth_client_secret
     enabled              = true
   }
 }
