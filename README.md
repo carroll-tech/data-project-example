@@ -1,5 +1,7 @@
 # Blockchain Data Large Language Model
 
+[![Main Branch Deployment](https://github.com/carroll-tech/data-project-example/actions/workflows/main.yml/badge.svg)](https://github.com/carroll-tech/data-project-example/actions/workflows/main.yml)
+
 ## Project Overview
 
 A sophisticated chatbot platform designed to provide real-time insights and answers to questions about blockchain data and news across multiple blockchain networks. This system leverages advanced data engineering, machine learning, and natural language processing techniques to deliver accurate, contextual responses about blockchain transactions, smart contracts, market trends, and industry developments.
