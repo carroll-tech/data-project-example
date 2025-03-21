@@ -197,10 +197,8 @@ module "networking" {
   ]
   
   # GitHub Authentication
-  github_oauth = {
-    client_id     = "your-github-oauth-client-id"
-    client_secret = "your-github-oauth-client-secret"
-  }
+  github_oauth_client_id     = "your-github-oauth-client-id"
+  github_oauth_client_secret = "your-github-oauth-client-secret"
   
   # GitHub Workload Identity Federation
   project_id_prefix = "myproj"
@@ -240,8 +238,8 @@ This module requires several variables to be set before it can be applied. The m
 
 | Name | Description | How to Obtain |
 |------|-------------|--------------|
-| `github_oauth.client_id` | GitHub OAuth client ID for IAP authentication | See [GitHub OAuth Setup](#github-oauth-setup) below |
-| `github_oauth.client_secret` | GitHub OAuth client secret for IAP authentication | See [GitHub OAuth Setup](#github-oauth-setup) below |
+| `github_oauth_client_id` | GitHub OAuth client ID for IAP authentication | See [GitHub OAuth Setup](#github-oauth-setup) below |
+| `github_oauth_client_secret` | GitHub OAuth client secret for IAP authentication | See [GitHub OAuth Setup](#github-oauth-setup) below |
 | `project` | GCP project ID to deploy resources within | From your Google Cloud Console |
 | `github_username` | GitHub username that owns the repository | Your GitHub username |
 
@@ -294,19 +292,10 @@ Before running `terraform plan` or `terraform apply`, you need to set up the req
 
 | Key | Category | Sensitive | Description |
 |-----|----------|-----------|-------------|
-| `github_oauth.client_id` | Terraform | Yes | GitHub OAuth client ID from the setup above |
-| `github_oauth.client_secret` | Terraform | Yes | GitHub OAuth client secret from the setup above |
+| `github_oauth_client_id` | Terraform | Yes | GitHub OAuth client ID from the setup above |
+| `github_oauth_client_secret` | Terraform | Yes | GitHub OAuth client secret from the setup above |
 | `project` | Terraform | No | Your GCP project ID |
 | `github_username` | Terraform | No | Your GitHub username |
-
-For complex variable types like `github_oauth`, you'll need to use HCL format:
-
-```hcl
-github_oauth = {
-  client_id     = "your-github-oauth-client-id"
-  client_secret = "your-github-oauth-client-secret"
-}
-```
 
 5. Save the variables
 6. Now you can run `terraform plan` and `terraform apply` from your local machine, and Terraform Cloud will use these variables

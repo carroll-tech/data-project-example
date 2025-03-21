@@ -13,13 +13,34 @@ locals {
 # GitHub Authentication Variables
 #--------------------------------------------------------------
 
+variable "github_oauth_client_id" {
+  description = "GitHub OAuth client ID for IAP authentication"
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
+variable "github_oauth_client_secret" {
+  description = "GitHub OAuth client secret for IAP authentication"
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "github_oauth" {
-  description = "GitHub OAuth configuration for IAP authentication"
+  description = "GitHub OAuth configuration for IAP authentication (deprecated, use github_oauth_client_id and github_oauth_client_secret instead)"
   type = object({
     client_id     = string
     client_secret = string
   })
   sensitive = true
+  default   = null
+}
+
+locals {
+  # Use the flat variables if provided, otherwise fall back to the object
+  github_oauth_client_id     = coalesce(var.github_oauth_client_id, try(var.github_oauth.client_id, null))
+  github_oauth_client_secret = coalesce(var.github_oauth_client_secret, try(var.github_oauth.client_secret, null))
 }
 
 variable "github_rbac" {
