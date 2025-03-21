@@ -6,13 +6,12 @@ locals {
   subnet_regions = [for s in var.subnets : s.region != null ? s.region : var.region]
   
   # Build list of all domain names for SSL certificate
+  # Wildcards are not supported in Google-managed SSL certificates
   domain_names = concat(
     # Root domain
     [local.domain_base],
     # Explicit subdomains
-    [for s in var.subdomains : "${s.name == "root" ? "" : "${s.name}."}${local.domain_base}"],
-    # Wildcard subdomain if enabled
-    var.enable_wildcard_ssl ? ["*.${local.domain_base}"] : []
+    [for s in var.subdomains : "${s.name == "root" ? "" : "${s.name}."}${local.domain_base}"]
   )
 }
 

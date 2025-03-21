@@ -120,11 +120,8 @@ variable "enable_wildcard_dns" {
   default     = true
 }
 
-variable "enable_wildcard_ssl" {
-  description = "Whether to include a wildcard domain (*.domain.com) in the SSL certificate"
-  type        = bool
-  default     = true
-}
+# Wildcard SSL is not supported by Google-managed SSL certificates
+# Only explicit domains can be added to the certificate
 
 variable "enable_iap" {
   description = "Whether to enable Identity-Aware Proxy (IAP) for application authentication. Requires the project to be part of an organization."

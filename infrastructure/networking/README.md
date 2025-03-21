@@ -109,6 +109,67 @@ These resources are exposed to users and require authentication:
 - Load balancers and ingress controllers
 - DNS configuration for public access
 
+## SSL Certificate and DNS Configuration
+
+### SSL Certificate Limitations
+
+Google-managed SSL certificates have specific limitations:
+
+- **No Wildcard Support**: Google-managed SSL certificates **do not support wildcard domains** (e.g., `*.example.com`)
+- **Explicit Domain Listing**: Each subdomain requiring HTTPS must be explicitly listed in the SSL certificate
+- **Certificate Regeneration**: Adding a new subdomain requires regenerating the entire certificate
+
+### DNS Configuration
+
+While wildcard SSL certificates are not supported, wildcard DNS records are fully supported:
+
+- **Wildcard DNS Records**: A wildcard DNS record (`*.example.com`) can point to the load balancer IP
+- **Individual Routing**: Each subdomain can still be routed to different backend services through URL maps
+
+### Adding New Subdomains
+
+To add a new subdomain with HTTPS support:
+
+1. **Update Terraform Configuration**:
+   - Add the new subdomain to the `subdomains` variable in `variables.tf`
+   ```hcl
+   {
+     name = "new-app",
+     address_type = "EXTERNAL",
+     github_access_level = "READ"
+   }
+   ```
+
+2. **Apply Terraform Changes**:
+   - This will update the SSL certificate to include the new subdomain
+   - Certificate provisioning may take 30+ minutes
+
+3. **Create Kubernetes Ingress Object**:
+   - Define a GKE Ingress to route traffic based on the hostname:
+   ```yaml
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: new-app-ingress
+     annotations:
+       kubernetes.io/ingress.class: "gce"
+       kubernetes.io/ingress.global-static-ip-name: "data-project-example-main-ip"
+   spec:
+     rules:
+     - host: "new-app.data-project-example.net"
+       http:
+         paths:
+         - path: "/"
+           pathType: Prefix
+           backend:
+             service:
+               name: new-app-service
+               port:
+                 number: 80
+   ```
+
+This architecture allows for flexible subdomain management while working within Google Cloud's SSL certificate limitations.
+
 ## Usage
 
 ```hcl
