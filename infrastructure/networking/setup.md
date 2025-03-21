@@ -59,9 +59,13 @@ The account running Terraform needs the following permissions:
 
 1. `roles/iam.workloadIdentityPoolAdmin` - To create and manage Workload Identity Pools
 2. `roles/iam.serviceAccountAdmin` - To create and manage service accounts
-3. `roles/compute.networkAdmin` - To create and manage network resources
-4. `roles/compute.securityAdmin` - To create and manage firewall rules
-5. `roles/iap.admin` - To configure Identity-Aware Proxy
+3. `roles/iam.securityAdmin` - To manage IAM policies and role bindings
+4. `roles/compute.networkAdmin` - To create and manage network resources
+5. `roles/compute.securityAdmin` - To create and manage firewall rules
+6. `roles/compute.loadBalancerAdmin` - To manage load balancers, backend services, and health checks
+7. `roles/iap.admin` - To configure Identity-Aware Proxy
+8. `roles/dns.admin` - To manage DNS records if needed
+9. `roles/serviceusage.serviceUsageAdmin` - To enable required APIs
 
 You can grant these roles to your account with:
 
@@ -76,6 +80,10 @@ gcloud projects add-iam-policy-binding data-project-example \
 
 gcloud projects add-iam-policy-binding data-project-example \
   --member=user:YOUR_EMAIL \
+  --role=roles/iam.securityAdmin
+
+gcloud projects add-iam-policy-binding data-project-example \
+  --member=user:YOUR_EMAIL \
   --role=roles/compute.networkAdmin
 
 gcloud projects add-iam-policy-binding data-project-example \
@@ -84,7 +92,19 @@ gcloud projects add-iam-policy-binding data-project-example \
 
 gcloud projects add-iam-policy-binding data-project-example \
   --member=user:YOUR_EMAIL \
+  --role=roles/compute.loadBalancerAdmin
+
+gcloud projects add-iam-policy-binding data-project-example \
+  --member=user:YOUR_EMAIL \
   --role=roles/iap.admin
+
+gcloud projects add-iam-policy-binding data-project-example \
+  --member=user:YOUR_EMAIL \
+  --role=roles/dns.admin
+
+gcloud projects add-iam-policy-binding data-project-example \
+  --member=user:YOUR_EMAIL \
+  --role=roles/serviceusage.serviceUsageAdmin
 ```
 
 Replace `YOUR_EMAIL` with your Google Cloud account email.
@@ -94,25 +114,21 @@ Replace `YOUR_EMAIL` with your Google Cloud account email.
 If you're using Terraform Cloud, make sure the service account has the necessary permissions:
 
 ```bash
-gcloud projects add-iam-policy-binding data-project-example \
-  --member=serviceAccount:TERRAFORM_CLOUD_SA_EMAIL \
-  --role=roles/iam.workloadIdentityPoolAdmin
-
-gcloud projects add-iam-policy-binding data-project-example \
-  --member=serviceAccount:TERRAFORM_CLOUD_SA_EMAIL \
-  --role=roles/iam.serviceAccountAdmin
-
-gcloud projects add-iam-policy-binding data-project-example \
-  --member=serviceAccount:TERRAFORM_CLOUD_SA_EMAIL \
-  --role=roles/compute.networkAdmin
-
-gcloud projects add-iam-policy-binding data-project-example \
-  --member=serviceAccount:TERRAFORM_CLOUD_SA_EMAIL \
-  --role=roles/compute.securityAdmin
-
-gcloud projects add-iam-policy-binding data-project-example \
-  --member=serviceAccount:TERRAFORM_CLOUD_SA_EMAIL \
-  --role=roles/iap.admin
+for ROLE in \
+  roles/iam.workloadIdentityPoolAdmin \
+  roles/iam.serviceAccountAdmin \
+  roles/iam.securityAdmin \
+  roles/compute.networkAdmin \
+  roles/compute.securityAdmin \
+  roles/compute.loadBalancerAdmin \
+  roles/iap.admin \
+  roles/dns.admin \
+  roles/serviceusage.serviceUsageAdmin
+do
+  gcloud projects add-iam-policy-binding data-project-example \
+    --member=serviceAccount:TERRAFORM_CLOUD_SA_EMAIL \
+    --role=$ROLE
+done
 ```
 
 Replace `TERRAFORM_CLOUD_SA_EMAIL` with the email of the service account used by Terraform Cloud.
