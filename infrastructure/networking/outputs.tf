@@ -31,7 +31,7 @@ output "domain_details" {
         github_access_level = subdomain.github_access_level
       }
     }
-    wildcard_enabled = var.enable_wildcard_dns
+    wildcard_enabled = var.enable_dns
   }
   sensitive = true
 }

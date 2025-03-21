@@ -496,13 +496,7 @@ workload_identity_provider = <sensitive>
      ```
    - Log in to your Squarespace account
    - Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
-   - Since you own the domain, you have two options for DNS configuration:
-   
-     **Option 1: Individual Records** (if you need different IPs for different subdomains):
-     - A record: Host `@` → Points to `$ROOT_IP` (for root domain)
-     - A record: Host `cd` → Points to `$CD_IP` (for cd subdomain)
-     
-     **Option 2: Wildcard Record** (if most subdomains share the same IP):
+   - Configure your DNS records as follows:
      - A record: Host `@` → Points to `$ROOT_IP` (for root domain)
      - A record: Host `cd` → Points to `$CD_IP` (for cd subdomain)
      - A record: Host `*` → Points to `$ROOT_IP` (covers all other subdomains)

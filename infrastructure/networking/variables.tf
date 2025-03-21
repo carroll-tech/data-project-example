@@ -114,12 +114,6 @@ variable "enable_dns" {
   default     = true
 }
 
-variable "enable_wildcard_dns" {
-  description = "Whether to create a wildcard DNS record (*.domain.com) pointing to the main IP"
-  type        = bool
-  default     = true
-}
-
 # Wildcard SSL is not supported by Google-managed SSL certificates
 # Only explicit domains can be added to the certificate
 

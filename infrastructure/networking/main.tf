@@ -56,9 +56,9 @@ resource "google_dns_record_set" "subdomain_records" {
   rrdatas = [google_compute_global_address.main_static_ip.address]
 }
 
-# Wildcard A record (if enabled)
+# Wildcard A record
 resource "google_dns_record_set" "wildcard_record" {
-  count        = var.enable_dns && var.enable_wildcard_dns ? 1 : 0
+  count        = var.enable_dns ? 1 : 0
   name         = "*.${local.domain_base}."
   type         = "A"
   ttl          = 300
