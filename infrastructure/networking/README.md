@@ -629,6 +629,7 @@ The service account used to run `terraform apply` for this networking module req
 
 | Role | Purpose | Resources Managed |
 |------|---------|-------------------|
+| `roles/iam.workloadIdentityPoolAdmin` | Create and manage Workload Identity Pools | Workload Identity Pools, providers |
 | `roles/compute.networkAdmin` | Manage VPC networks and subnets | VPC, subnets, routes |
 | `roles/compute.securityAdmin` | Manage firewall rules | Firewall rules, security policies |
 | `roles/dns.admin` | Manage DNS records | DNS zones and records |
@@ -649,6 +650,7 @@ SERVICE_ACCOUNT="your-service-account@your-project-id.iam.gserviceaccount.com"
 
 # Grant the required roles
 for ROLE in \
+  roles/iam.workloadIdentityPoolAdmin \
   roles/compute.networkAdmin \
   roles/compute.securityAdmin \
   roles/dns.admin \
