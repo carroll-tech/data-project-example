@@ -51,7 +51,7 @@ variable "github_username" {
 variable "project" {
   description = "GCP project to deploy resources within"
   type        = string
-  default     = "data-project-example"
+  default     = "data-project-example-454322"
 }
 
 variable "region" {

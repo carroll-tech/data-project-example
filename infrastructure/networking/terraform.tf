@@ -11,7 +11,7 @@ terraform {
     organization = "jolfr-personal"
 
     workspaces {
-      name = "data-project-example-networking"
+      name = "networking"
     }
   }
 }
