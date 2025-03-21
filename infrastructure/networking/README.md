@@ -42,7 +42,7 @@ This module manages GCP networking resources for the data-project-example, inclu
 - Service account with appropriate IAM roles for network administration
 - Workload Identity Federation for secure GitHub Actions authentication
 - GitHub authentication for Helm-deployed applications and kubectl access
-- Integration with Netlify DNS for public domain management
+- Integration with Squarespace DNS for public domain management
 
 ## Purpose
 
@@ -125,11 +125,11 @@ graph TD
         FW --> FW4[Allow API server access]
     end
     
-    subgraph "Netlify DNS"
-        NetlifyDNS[Netlify DNS Management] --> RootRecord[A Record: data-project-example.net]
-        NetlifyDNS --> CDRecord[A Record: cd.data-project-example.net]
-        NetlifyDNS --> WildcardRecord[Wildcard A Record: *.data-project-example.net]
-        NetlifyDNS --> NestedWildcard[Wildcard A Record: *.subdomain.data-project-example.net]
+    subgraph "Squarespace DNS"
+        SquarespaceDNS[Squarespace DNS Management] --> RootRecord[A Record: data-project-example.net]
+        SquarespaceDNS --> CDRecord[A Record: cd.data-project-example.net]
+        SquarespaceDNS --> WildcardRecord[Wildcard A Record: *.data-project-example.net]
+        SquarespaceDNS --> NestedWildcard[Wildcard A Record: *.subdomain.data-project-example.net]
         RootRecord --> LB
         CDRecord --> LB
         WildcardRecord --> LB
@@ -280,6 +280,8 @@ To obtain the GitHub OAuth credentials needed for IAP authentication with a GitH
    - Verifying the domain associated with your organization
    - Setting up IP allowlists for added security
    - Configuring SAML SSO integration if your organization uses it
+
+**Important Note on Authentication**: Even though the Google OAuth consent screen is set to "Internal", users do NOT need to have your organization email to use the service. Authentication is handled by GitHub, not Google. Users authenticate with their GitHub accounts, and access is controlled by GitHub repository roles (READ, WRITE, ADMIN). The "Internal" setting only affects the Google OAuth brand configuration and allows you to avoid the verification process.
 
 ### Access Control
 
@@ -473,7 +475,7 @@ workload_identity_provider = <sensitive>
          }
      ```
 
-7. **Configure Netlify DNS**:
+7. **Configure Squarespace DNS**:
    - Retrieve static IPs from Terraform outputs:
      ```bash
      # Get the static IP for the root domain
@@ -482,13 +484,20 @@ workload_identity_provider = <sensitive>
      # Get the static IP for the cd subdomain
      CD_IP=$(terraform output -raw static_ip_details | jq -r '.cd.ip_address')
      ```
-   - Log in to your Netlify account
-   - Navigate to the domain settings for `data-project-example.net`
-   - Add the following DNS records:
-     - A record: `data-project-example.net` → `$ROOT_IP`
-     - A record: `cd.data-project-example.net` → `$CD_IP`
-     - A record: `*.data-project-example.net` → `$ROOT_IP` (for wildcard subdomains)
-     - A record: `*.subdomain.data-project-example.net` → `$ROOT_IP` (for nested wildcard subdomains)
+   - Log in to your Squarespace account
+   - Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
+   - Since you own the domain, you have two options for DNS configuration:
+   
+     **Option 1: Individual Records** (if you need different IPs for different subdomains):
+     - A record: Host `@` → Points to `$ROOT_IP` (for root domain)
+     - A record: Host `cd` → Points to `$CD_IP` (for cd subdomain)
+     
+     **Option 2: Wildcard Record** (if most subdomains share the same IP):
+     - A record: Host `@` → Points to `$ROOT_IP` (for root domain)
+     - A record: Host `cd` → Points to `$CD_IP` (for cd subdomain)
+     - A record: Host `*` → Points to `$ROOT_IP` (covers all other subdomains)
+     
+     **Note**: With Squarespace DNS, you typically don't need to specify the full domain name in the Host field, just the subdomain part or `@` for the root domain.
 
 ### Per-Application Setup Steps
 
@@ -511,10 +520,12 @@ workload_identity_provider = <sensitive>
      ```
 
 2. **Configure DNS for the Application**:
-   - Add an A record in Netlify DNS:
-     - A record: `app-name.data-project-example.net` → `$APP_IP`
+   - Add an A record in Squarespace DNS:
+     - Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
+     - Add A record: Host `app-name` → Points to `$APP_IP`
    - For nested subdomains:
-     - A record: `app-name.subdomain.data-project-example.net` → `$APP_IP`
+     - Add A record: Host `app-name.subdomain` → Points to `$APP_IP`
+   - Alternatively, if you're using a wildcard record (`*`), you may not need to add individual records for each new application
 
 3. **Configure IAP Access for the Application**:
    - Go to Google Cloud Console → Security → Identity-Aware Proxy

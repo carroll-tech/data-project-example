@@ -72,6 +72,13 @@ gcloud services enable iap.googleapis.com --project=data-project-example
    - Select your project
    - You'll be prompted to configure the OAuth consent screen:
      - Select "Internal" for the User Type (since the project is part of an organization)
+    
+     - **Important Clarification**: When selecting "Internal" for the User Type:
+       - This setting only applies to the Google OAuth consent screen configuration
+       - It does NOT restrict authentication to users with organization email addresses
+       - Since authentication is handled by GitHub, users will authenticate with their GitHub accounts
+       - Access control is based on GitHub repository roles, not Google Workspace organization membership
+       - The "Internal" setting simply allows you to avoid the verification process while maintaining the security benefits
      - Fill in the required information:
        - App name: "Data Project Example"
        - User support email: Your email address
@@ -233,3 +240,133 @@ For IAP authentication with GitHub, you need to:
 3. Add the client ID and secret to Terraform Cloud variables
 
 See the main README.md for detailed instructions on GitHub OAuth setup.
+
+## Registering Your Domain with Google Search Console
+
+Registering your domain with Google Search Console is important for ensuring your applications are properly indexed by search engines. This section provides instructions for registering your domain when using Squarespace for DNS management.
+
+### Prerequisites
+
+- A Google account
+- Your domain (data-project-example.net) properly configured in Squarespace
+- Admin access to your Squarespace account
+
+### Step 1: Access Google Search Console
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+2. Sign in with your Google account
+3. Click "Add property" to begin the registration process
+
+### Step 2: Choose Property Type
+
+1. Select "Domain" as the property type (recommended)
+   - This covers all subdomains (www, cd, etc.) and protocols (http, https)
+   - Alternatively, you can select "URL prefix" for specific subdomains
+
+2. Enter your domain: `data-project-example.net`
+
+### Step 3: Verify Domain Ownership via Squarespace DNS
+
+1. Google will provide a TXT record for verification
+2. Log in to your Squarespace account
+3. Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
+4. Add a new DNS record with the following details:
+   - Record type: TXT
+   - Host: @ (for the root domain)
+   - Value: [The verification string provided by Google]
+   - TTL: Automatic (or 3600 seconds)
+5. Save the DNS record
+
+6. Return to Google Search Console and click "Verify"
+   - Note: DNS propagation can take up to 48 hours, but typically completes within a few hours
+   - If verification fails, wait and try again later
+
+### Step 4: Verify Subdomains (Optional)
+
+For our setup with multiple subdomains (cd.data-project-example.net, etc.):
+
+1. The domain-level verification automatically covers all subdomains
+2. No additional verification is needed for subdomains when using domain property type
+3. If you used URL prefix verification instead, you'll need to verify each subdomain separately
+
+### Step 5: Submit Sitemaps
+
+1. Create a sitemap.xml file for your applications
+   - For the root domain (data-project-example.net)
+   - For the ArgoCD subdomain (cd.data-project-example.net)
+   
+2. In Google Search Console:
+   - Go to "Sitemaps" in the left sidebar
+   - Enter the URL of your sitemap (e.g., `https://data-project-example.net/sitemap.xml`)
+   - Click "Submit"
+
+3. Monitor the status of your sitemap submission
+   - Check for any errors or warnings
+   - Verify that your pages are being indexed
+
+### Step 6: Configure Additional Settings
+
+1. **URL Inspection**: Test individual URLs to see how Google views them
+2. **Coverage Report**: Monitor indexing status and errors
+3. **Mobile Usability**: Check for mobile-friendly issues
+4. **Performance**: Track search analytics (clicks, impressions, CTR)
+
+### Integration with Our Infrastructure
+
+Since our networking module uses Squarespace for domain management:
+
+1. Retrieve the static IPs from Terraform outputs:
+   ```bash
+   # Get the static IP for the root domain
+   ROOT_IP=$(terraform output -raw static_ip_details | jq -r '.root.ip_address')
+   
+   # Get the static IP for the cd subdomain
+   CD_IP=$(terraform output -raw static_ip_details | jq -r '.cd.ip_address')
+   ```
+
+2. Ensure your Squarespace DNS configuration includes:
+   - A records for your domains pointing to the correct IPs
+   - The TXT record for Google Search Console verification
+   - Any other required DNS records (MX, CNAME, etc.)
+
+3. For wildcard subdomains (*.data-project-example.net):
+   - The domain-level verification covers all subdomains
+   - Ensure your sitemap includes all relevant subdomain URLs
+   - Note: Squarespace may have limitations with wildcard subdomains, so you may need to add each subdomain individually
+
+### Squarespace-Specific Considerations
+
+1. **DNS Management Limitations**:
+   - Squarespace has a simplified DNS interface with some limitations
+   - Some advanced record types may require contacting Squarespace support
+   - Changes may take longer to propagate compared to other DNS providers
+
+2. **Custom Domain Setup**:
+   - If you're using Squarespace for hosting the main website:
+     - Ensure the domain is properly connected to your Squarespace site
+     - Use "Custom Domain" in Squarespace settings rather than "Third-Party Domain"
+   - If you're only using Squarespace for DNS management:
+     - Use the "Advanced DNS Settings" to configure all records
+
+3. **HTTPS Configuration**:
+   - Squarespace provides free SSL certificates for domains connected to Squarespace sites
+   - For subdomains pointing to external services (like our GCP resources), you'll need to ensure SSL is configured on the target service
+
+### Troubleshooting
+
+1. **Verification Failures**:
+   - Confirm the TXT record was added correctly in Squarespace DNS
+   - Check for typos in the verification string
+   - Wait for DNS propagation (up to 48 hours)
+   - Use [DNS Checker](https://dnschecker.org/) to verify TXT record propagation
+
+2. **Indexing Issues**:
+   - Ensure your applications are publicly accessible
+   - Check for robots.txt files that might block Google's crawlers
+   - Verify that your IAP settings don't prevent Google from accessing your site
+
+3. **Squarespace-Specific Issues**:
+   - If you encounter limitations with Squarespace's DNS management:
+     - Consider using Squarespace's advanced DNS settings
+     - Contact Squarespace support for assistance with complex DNS configurations
+     - As a last resort, consider transferring DNS management to a more flexible provider
