@@ -6,11 +6,6 @@ data "google_project" "current" {
   project_id = var.project
 }
 
-# Get the default compute service account
-data "google_compute_default_service_account" "default" {
-  project = var.project
-}
-
 # Get the current user's email for IAP configuration
 data "google_client_config" "current" {}
 
