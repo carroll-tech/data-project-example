@@ -486,50 +486,39 @@ workload_identity_provider = <sensitive>
      ```
 
 7. **Configure Squarespace DNS**:
-   - Retrieve static IPs from Terraform outputs:
+   - Retrieve global static IP from Terraform outputs:
      ```bash
-     # Get the static IP for the root domain
-     ROOT_IP=$(terraform output -raw static_ip_details | jq -r '.root.ip_address')
-     
-     # Get the static IP for the cd subdomain
-     CD_IP=$(terraform output -raw static_ip_details | jq -r '.cd.ip_address')
+     # Get the global static IP used by all applications
+     GLOBAL_IP=$(terraform output -raw main_ip_address)
      ```
    - Log in to your Squarespace account
    - Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
    - Configure your DNS records as follows:
-     - A record: Host `@` → Points to `$ROOT_IP` (for root domain)
-     - A record: Host `cd` → Points to `$CD_IP` (for cd subdomain)
-     - A record: Host `*` → Points to `$ROOT_IP` (covers all other subdomains)
+     - A record: Host `@` → Points to `$GLOBAL_IP` (for root domain)
+     - A record: Host `*` → Points to `$GLOBAL_IP` (covers all subdomains, including cd)
      
      **Note**: With Squarespace DNS, you typically don't need to specify the full domain name in the Host field, just the subdomain part or `@` for the root domain.
 
 ### Per-Application Setup Steps
 
-1. **Create Static IP for the Application** (if needed):
+1. **Register New Subdomain in the Configuration**:
    - Add a new entry to the `subdomains` variable in `variables.tf`:
      ```hcl
      {
        name = "app-name",
-       address_type = "EXTERNAL",
-       network_tier = "PREMIUM"
+       github_access_level = "READ"  # Set appropriate access level
      }
      ```
    - Apply the Terraform changes:
      ```bash
      terraform apply
      ```
-   - Get the new IP address:
-     ```bash
-     APP_IP=$(terraform output -raw static_ip_details | jq -r '.app-name.ip_address')
-     ```
+   - This updates the SSL certificate to include the new subdomain
+   - Note: Certificate provisioning/updates may take 30+ minutes
 
-2. **Configure DNS for the Application**:
-   - Add an A record in Squarespace DNS:
-     - Navigate to Settings → Domains → [Your Domain] → Advanced Settings → DNS Settings
-     - Add A record: Host `app-name` → Points to `$APP_IP`
-   - For nested subdomains:
-     - Add A record: Host `app-name.subdomain` → Points to `$APP_IP`
-   - Alternatively, if you're using a wildcard record (`*`), you may not need to add individual records for each new application
+2. **DNS Configuration**:
+   - No additional DNS configuration is needed if using the wildcard record (`*`)
+   - The new subdomain automatically resolves to the global IP through the wildcard record
 
 3. **Configure IAP Access for the Application**:
    - Go to Google Cloud Console → Security → Identity-Aware Proxy
@@ -548,11 +537,11 @@ workload_identity_provider = <sensitive>
        name: app-name-ingress
        annotations:
          kubernetes.io/ingress.class: "gce"
-         kubernetes.io/ingress.global-static-ip-name: "data-project-example-app-name"
+         kubernetes.io/ingress.global-static-ip-name: "data-project-example-main-ip"  # Using shared global IP
          networking.gke.io/v1beta1.FrontendConfig: "iap-config"
      spec:
        rules:
-       - host: "app-name.data-project-example.net"
+       - host: "app-name.data-project-example.net"  # Host-based routing
          http:
            paths:
            - path: "/"
@@ -566,14 +555,14 @@ workload_identity_provider = <sensitive>
 
 ## ArgoCD Integration
 
-ArgoCD is deployed as a special case with the following considerations:
+ArgoCD is deployed with the following considerations:
 
-1. **Dedicated Static IP**:
-   - ArgoCD has a dedicated static IP at `cd.data-project-example.net`
-   - This IP is EXTERNAL to allow user access
+1. **Dedicated Subdomain**:
+   - ArgoCD is accessible at the `cd.data-project-example.net` subdomain
+   - It uses the same global IP as all other applications, with host-based routing
 
 2. **GitHub Authentication**:
-   - ArgoCD uses GitHub OAuth for authentication
+   - ArgoCD uses GitHub OAuth for authentication through IAP
    - Users with WRITE access to the repository can access ArgoCD
 
 3. **RBAC Configuration**:

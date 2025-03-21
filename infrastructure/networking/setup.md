@@ -236,7 +236,7 @@ The refactored networking module uses a single entry point with Cloud DNS for al
 The architecture uses a single Google-managed SSL certificate that covers:
 - The root domain (data-project-example.net)
 - Explicit subdomains (cd.data-project-example.net)
-- Wildcard domain (*.data-project-example.net) if enabled
+- All other subdomains via host-based routing
 
 Note that Google-managed SSL certificates have some limitations:
 - Provisioning Time: It can take up to 24 hours for a certificate to be fully provisioned
@@ -286,7 +286,7 @@ Cloud DNS fully supports wildcard records, making it ideal for our single entry 
    # Check if DNS records are propagated
    dig data-project-example.net
    dig cd.data-project-example.net
-   dig random-subdomain.data-project-example.net  # Should resolve if wildcard is enabled
+   dig random-subdomain.data-project-example.net  # Should resolve through the wildcard record
    ```
 
 ## GitHub OAuth Setup
