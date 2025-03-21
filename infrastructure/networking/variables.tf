@@ -25,6 +25,21 @@ variable "github_oauth_client_secret" {
   sensitive   = true
 }
 
+variable "github_organization" {
+  description = "GitHub organization name"
+  type        = string
+}
+
+variable "github_org_teams" {
+  description = "Map of GitHub organization teams to their IAM members format"
+  type        = map(list(string))
+  default     = {
+    READ   = []
+    WRITE  = []
+    ADMIN  = []
+  }
+}
+
 variable "github_rbac" {
   description = "GitHub RBAC configuration mapping repository roles to application access"
   type = object({

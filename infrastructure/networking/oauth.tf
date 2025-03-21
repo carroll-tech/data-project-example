@@ -7,19 +7,18 @@
 resource "google_iap_web_backend_service_iam_binding" "read_access" {
   for_each = {
     for i, subdomain in var.subdomains :
-    subdomain.name => subdomain if subdomain.iap_enabled && subdomain.github_access_level == "READ"
+    subdomain.name => subdomain if subdomain.iap_enabled && 
+    (subdomain.github_access_level == "READ" || subdomain.name == "root")
   }
   
   project = var.project
   web_backend_service = google_compute_backend_service.backend_service[each.key].name
   role = "roles/iap.httpsResourceAccessor"
   
-  members = [
-    local.current_user_email_with_prefix,
-    # In a real implementation, this would include GitHub users with READ access
-    # This is a placeholder for demonstration purposes
-    # "group:github-read-access@example.com"
-  ]
+  members = concat(
+    [local.current_user_email_with_prefix],
+    var.github_org_teams["READ"]
+  )
 }
 
 # IAM bindings for WRITE access (ability to manage applications)

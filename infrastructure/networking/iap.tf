@@ -1,15 +1,12 @@
 # IAP (Identity-Aware Proxy) Configuration for GitHub Authentication
 
-# Check if IAP should be enabled
+# IAP Configuration
 locals {
-  # We need to disable IAP if the project is not part of an organization
-  enable_iap = false # Disabled due to project not being part of a GCP organization
+  # Enable IAP now that the project is part of a GCP organization
+  enable_iap = true
 }
 
-# IAP Brand and Client resources are commented out since the project is not part of a GCP organization
-# Uncomment these resources when the project is moved to a GCP organization
-
-/*
+# IAP Brand and Client resources for organization-based authentication
 resource "google_iap_brand" "default" {
   count            = local.enable_iap ? 1 : 0
   support_email     = local.support_email
@@ -22,7 +19,6 @@ resource "google_iap_client" "default" {
   display_name = "GitHub OAuth Client"
   brand        = google_iap_brand.default[0].name
 }
-*/
 
 # IAP Web Backend Service IAM Member for each subdomain
 resource "google_iap_web_backend_service_iam_member" "member" {

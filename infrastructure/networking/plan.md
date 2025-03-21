@@ -157,6 +157,48 @@ graph TD
     end
 ```
 
+## Organization IAP Access Implementation
+
+The networking module has been updated to support IAP access for GitHub organization repositories. The following changes have been implemented:
+
+### IAP Configuration
+
+- IAP is now enabled by default for projects that are part of a GCP organization
+- The IAP Brand and Client resources are now active
+- Backend services are configured to use IAP authentication
+
+### GitHub Organization Integration
+
+- GitHub OAuth is configured for organization authentication
+- Repository roles (READ, WRITE, ADMIN) are mapped to IAP access levels
+- READ access to the repository grants access to the root domain (data-project-example.net)
+
+### Access Control Implementation
+
+The implementation uses IAM bindings to control access based on GitHub repository roles:
+
+```hcl
+# IAM bindings for READ access (basic access to view applications)
+resource "google_iap_web_backend_service_iam_binding" "read_access" {
+  for_each = {
+    for i, subdomain in var.subdomains :
+    subdomain.name => subdomain if subdomain.iap_enabled && 
+    (subdomain.github_access_level == "READ" || subdomain.name == "root")
+  }
+  
+  project = var.project
+  web_backend_service = google_compute_backend_service.backend_service[each.key].name
+  role = "roles/iap.httpsResourceAccessor"
+  
+  members = concat(
+    [local.current_user_email_with_prefix],
+    var.github_org_teams["READ"]
+  )
+}
+```
+
+This ensures that users with READ access to the repository can access the root domain, while maintaining more restricted access for other resources.
+
 ## Implementation Steps
 
 ### One-Time Setup Steps

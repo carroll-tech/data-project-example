@@ -246,6 +246,17 @@ This module requires several variables to be set before it can be applied. The m
 | `project` | GCP project ID to deploy resources within | From your Google Cloud Console |
 | `github_username` | GitHub username that owns the repository | Your GitHub username |
 
+## Organization IAP Access
+
+This module now supports Identity-Aware Proxy (IAP) access for GitHub organization repositories. The following changes have been implemented:
+
+- IAP is now enabled by default for projects that are part of a GCP organization
+- GitHub organization OAuth integration for authentication
+- Role-based access control based on GitHub repository roles:
+  - READ access to the repository grants access to the root domain (data-project-example.net)
+  - WRITE access grants additional permissions for managing applications
+  - ADMIN access provides full administrative control
+
 ### GitHub Organization OAuth Setup
 
 To obtain the GitHub OAuth credentials needed for IAP authentication with a GitHub organization:
@@ -269,6 +280,18 @@ To obtain the GitHub OAuth credentials needed for IAP authentication with a GitH
    - Verifying the domain associated with your organization
    - Setting up IP allowlists for added security
    - Configuring SAML SSO integration if your organization uses it
+
+### Access Control
+
+Access to applications is controlled based on GitHub repository roles:
+
+| GitHub Role | Access Level | Resources |
+|-------------|--------------|-----------|
+| READ        | Basic access | Root domain (data-project-example.net) |
+| WRITE       | Advanced access | ArgoCD (cd.data-project-example.net) |
+| ADMIN       | Full access | All resources |
+
+For more detailed configuration options, see the [GitHub Organization OAuth Setup](#github-organization-oauth-setup) section.
 
 ## Terraform Cloud Setup
 

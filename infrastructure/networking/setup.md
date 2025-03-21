@@ -53,6 +53,40 @@ To verify that the APIs have been enabled:
 gcloud services list --enabled --filter="name:iap.googleapis.com OR name:iam.googleapis.com OR name:compute.googleapis.com OR name:cloudresourcemanager.googleapis.com OR name:iamcredentials.googleapis.com" --project=data-project-example
 ```
 
+## Organization IAP Setup
+
+Now that the project is part of a GCP organization, IAP is enabled by default. This requires additional setup:
+
+### Enable IAP API
+
+Ensure the IAP API is enabled:
+
+```bash
+gcloud services enable iap.googleapis.com --project=data-project-example
+```
+
+### Configure OAuth Consent Screen
+
+1. Go to Google Cloud Console → APIs & Services → OAuth consent screen
+2. Select "Internal" for the User Type (since the project is part of an organization)
+3. Fill in the required information:
+   - App name: "Data Project Example"
+   - User support email: Your email address
+   - Developer contact information: Your email address
+4. Add the necessary scopes:
+   - `./auth/userinfo.email`
+   - `./auth/userinfo.profile`
+5. Add test users if needed for testing
+
+### Configure IAP in Google Cloud Console
+
+After applying the Terraform changes:
+
+1. Go to Google Cloud Console → Security → Identity-Aware Proxy
+2. Verify that IAP is enabled for the backend services
+3. Check that the OAuth client is properly configured
+4. Test access with different organization members
+
 ## Required Permissions
 
 The account running Terraform needs the following permissions:

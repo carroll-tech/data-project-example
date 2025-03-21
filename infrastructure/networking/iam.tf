@@ -40,8 +40,8 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
     "attribute.ref"        = "assertion.ref"
   }
   
-  # Add attribute condition to restrict to specific repository
-  attribute_condition = "attribute.repository==\"${var.github_username}/data-project-example\""
+  # Add attribute condition to restrict to specific repository in the organization
+  attribute_condition = "attribute.repository==\"${var.github_organization}/data-project-example\""
   
   # GitHub-specific OIDC configuration
   oidc {
@@ -56,8 +56,8 @@ resource "google_service_account_iam_binding" "github_workload_identity_binding"
   role               = "roles/iam.workloadIdentityUser"
   
   members = [
-    # Format for personal GitHub account: 
-    # principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/attribute.repository/USERNAME/REPO_NAME
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_username}/data-project-example"
+    # Format for organization GitHub account: 
+    # principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/attribute.repository/ORG_NAME/REPO_NAME
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_organization}/data-project-example"
   ]
 }
