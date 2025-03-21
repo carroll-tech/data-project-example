@@ -26,6 +26,9 @@
   - [Setting Up Kubectl Access with GitHub Authentication](#setting-up-kubectl-access-with-github-authentication)
   - [Access Levels Based on GitHub Repository Roles](#access-levels-based-on-github-repository-roles)
 - [Security Considerations](#security-considerations)
+- [Required IAM Policies for Terraform Service Account](#required-iam-policies-for-terraform-service-account)
+  - [Applying These Policies](#applying-these-policies)
+  - [Security Considerations](#security-considerations-1)
 - [License](#license)
 
 ## Overview
@@ -619,6 +622,56 @@ This section explains how to set up kubectl access to the GKE cluster using GitH
    - READ: Basic access to view applications (e.g., hello-world)
    - WRITE: Advanced access to manage applications (e.g., ArgoCD)
    - ADMIN: Full administrative access to all applications
+
+## Required IAM Policies for Terraform Service Account
+
+The service account used to run `terraform apply` for this networking module requires the following IAM roles to successfully create and manage all resources:
+
+| Role | Purpose | Resources Managed |
+|------|---------|-------------------|
+| `roles/compute.networkAdmin` | Manage VPC networks and subnets | VPC, subnets, routes |
+| `roles/compute.securityAdmin` | Manage firewall rules | Firewall rules, security policies |
+| `roles/dns.admin` | Manage DNS records | DNS zones and records |
+| `roles/iam.serviceAccountAdmin` | Create and manage service accounts | Service accounts |
+| `roles/iam.securityAdmin` | Manage IAM policies | IAM bindings, policies |
+| `roles/iap.admin` | Configure Identity-Aware Proxy | IAP brands, clients, settings |
+| `roles/compute.loadBalancerAdmin` | Manage load balancers | Backend services, health checks, SSL certificates |
+| `roles/serviceusage.serviceUsageAdmin` | Enable required APIs | Service enablement |
+
+### Applying These Policies
+
+To grant these roles to your service account:
+
+```bash
+# Replace with your project ID and service account email
+PROJECT_ID="your-project-id"
+SERVICE_ACCOUNT="your-service-account@your-project-id.iam.gserviceaccount.com"
+
+# Grant the required roles
+for ROLE in \
+  roles/compute.networkAdmin \
+  roles/compute.securityAdmin \
+  roles/dns.admin \
+  roles/iam.serviceAccountAdmin \
+  roles/iam.securityAdmin \
+  roles/iap.admin \
+  roles/compute.loadBalancerAdmin \
+  roles/serviceusage.serviceUsageAdmin
+do
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$SERVICE_ACCOUNT" \
+    --role="$ROLE"
+done
+```
+
+### Security Considerations
+
+Following the principle of least privilege, consider:
+
+1. Creating a dedicated service account specifically for this networking module
+2. Using separate service accounts for different infrastructure components
+3. Regularly auditing and rotating service account credentials
+4. Implementing conditional access policies where possible
 
 ## License
 
