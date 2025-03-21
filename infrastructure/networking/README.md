@@ -212,7 +212,7 @@ module "networking" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| project | GCP project to deploy resources within | `string` | `"data-project-example"` | no |
+| project | GCP project to deploy resources within | `string` | n/a | yes |
 | region | GCP region to deploy resources within | `string` | `"us-central1"` | no |
 | vpc_name | Name of the VPC to create | `string` | `"k8s-vpc"` | no |
 | subnets | List of subnet configurations | `list(object)` | See variables.tf | no |
