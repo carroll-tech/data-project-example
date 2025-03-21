@@ -245,14 +245,14 @@ This module requires several variables to be set before it can be applied. The m
 | `project` | GCP project ID to deploy resources within | From your Google Cloud Console |
 | `github_username` | GitHub username that owns the repository | Your GitHub username |
 
-### GitHub OAuth Setup
+### GitHub Organization OAuth Setup
 
-To obtain the GitHub OAuth credentials needed for IAP authentication:
+To obtain the GitHub OAuth credentials needed for IAP authentication with a GitHub organization:
 
-1. Go to your GitHub account → Settings → Developer settings → OAuth Apps
+1. Go to your GitHub organization → Settings → Developer settings → OAuth Apps
 2. Click "New OAuth App"
 3. Fill in the following details:
-   - **Application name**: `data-project-example`
+   - **Application name**: `example-org`
    - **Homepage URL**: `https://data-project-example.net`
    - **Authorization callback URL**: `https://iap.googleapis.com/v1/oauth/clientIds/YOUR_CLIENT_ID:handleRedirect`
      - Note: You'll need to update this URL after creating the OAuth app and getting the client ID
@@ -260,6 +260,14 @@ To obtain the GitHub OAuth credentials needed for IAP authentication:
 5. You'll receive a Client ID immediately
 6. Click "Generate a new client secret" to get your Client Secret
 7. Save both the Client ID and Client Secret for use in Terraform Cloud
+8. Configure organization permissions:
+   - Go to the OAuth App settings
+   - Under "Organization access", grant access to your organization
+   - Set appropriate permission scopes based on your requirements
+9. For production deployments, consider:
+   - Verifying the domain associated with your organization
+   - Setting up IP allowlists for added security
+   - Configuring SAML SSO integration if your organization uses it
 
 ## Terraform Cloud Setup
 
